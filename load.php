@@ -28,8 +28,8 @@ if ( ! class_exists( '\TIOB\Main' ) ) {
 	require_once dirname( __FILE__ ) . '/Main.php';
 }
 
-if ( ! class_exists( 'Themeisle_OB_WP_Import_Logger' ) ) {
-	require_once dirname( __FILE__ ) . '/includes/importers/helpers/class-themeisle-ob-import-logger.php';
+if ( ! class_exists( '\TIOB\Logger' ) ) {
+	require_once dirname( __FILE__ ) . '/includes/importers/helpers/Logger.php';
 }
 
 if ( class_exists( 'WP_CLI' ) && ! class_exists( 'Themeisle_OB_WP_Cli' ) ) {

@@ -1,14 +1,14 @@
 <?php
 /**
- * Author:          Andrei Baicus <andrei@themeisle.com>
- * Created on:      2019-04-15
- * @package class-themeisle-ob-import-logger.php
+ * @package    themeisle-onboarding
  */
 
+namespace TIOB;
+
 /**
- * Class Themeisle_OB_WP_Import_Logger
+ * Class Logger
  */
-class Themeisle_OB_WP_Import_Logger {
+class Logger {
 
 	/**
 	 * Emojis mapped for each case.
@@ -51,7 +51,7 @@ class Themeisle_OB_WP_Import_Logger {
 	private $log_string = '';
 
 	/**
-	 * @var Themeisle_OB_WP_Import_Logger
+	 * @var Logger
 	 */
 	private static $_instance;
 
@@ -96,7 +96,7 @@ class Themeisle_OB_WP_Import_Logger {
 		$this->log_info( 'Home URL', home_url() );
 		$this->log_info( 'Site URL', site_url() );
 		$this->log_info( 'WordPress Version', get_bloginfo( 'version' ) );
-		$this->log_info( 'Onboarding Version', Themeisle_Onboarding::VERSION );
+		$this->log_info( 'Onboarding Version', Main::VERSION );
 		$this->log_info( 'Multisite', is_multisite() ? 'Yes' : 'No' );
 		$this->log_info( 'Server Info', isset( $_SERVER['SERVER_SOFTWARE'] ) ? wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) : '' );
 		$this->log_info( 'PHP Version', phpversion() );
@@ -136,7 +136,7 @@ class Themeisle_OB_WP_Import_Logger {
 	/**
 	 * Returns the instance of the class.
 	 *
-	 * @return Themeisle_OB_WP_Import_Logger
+	 * @return Logger
 	 */
 	public static function get_instance() {
 		if ( null === self::$_instance ) {

@@ -99,13 +99,11 @@ class Admin {
 	 *
 	 * @return array
 	 */
-	private function localize_sites_library($array) {
+	public function  localize_sites_library($array) {
 
-		var_dump($array);
 		$theme = wp_get_theme();
-
 		$api = array(
-			'root'            => esc_url_raw( rest_url( Themeisle_Onboarding::API_ROOT ) ),
+			'root'            => esc_url_raw( rest_url( Main::API_ROOT ) ),
 			'nonce'           => wp_create_nonce( 'wp_rest' ),
 			'homeUrl'         => esc_url( home_url() ),
 			'i18ln'           => $this->get_strings(),
@@ -114,7 +112,7 @@ class Admin {
 			'contentImported' => $this->escape_bool_text( get_theme_mod( 'ti_content_imported', 'no' ) ),
 			'aboutUrl'        => esc_url( admin_url( 'themes.php?page=' . $theme->__get( 'stylesheet' ) . '-welcome' ) ),
 			'importSteps'     => $this->get_import_steps(),
-			'logUrl'          => Themeisle_OB_WP_Import_Logger::get_instance()->get_log_url(),
+			'logUrl'          => Logger::get_instance()->get_log_url(),
 		);
 
 		$is_onboarding = isset( $_GET['onboarding'] ) && $_GET['onboarding'] === 'yes';
@@ -125,8 +123,9 @@ class Admin {
 		if ( isset( $_GET['readyimport'] ) ) {
 			$api['readyImport'] = $_GET['readyimport'];
 		}
+		$array['onboarding'] = $api;
 
-		return $api;
+		return $array;
 	}
 
 	/**

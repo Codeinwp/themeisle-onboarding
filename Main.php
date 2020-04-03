@@ -82,8 +82,6 @@ class Main {
 	 * @var null
 	 */
 	private function init() {
-		var_dump('loaded'
-		);
 		if ( ! $this->should_load() ) {
 			return;
 		}
