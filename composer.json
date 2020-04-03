@@ -1,0 +1,27 @@
+{
+  "name": "codeinwp/themeisle-onboarding",
+  "description": "ThemeIsle Onboarding Module.",
+  "version": "1.0.0",
+  "type": "library",
+  "license": "GPL-3.0-or-later",
+  "homepage": "https://github.com/Codeinwp/themeisle-onboarding",
+  "authors": [
+    {
+      "name": "ThemeIsle team",
+      "email": "friends@themeisle.com",
+      "homepage": "https://themeisle.com"
+    }
+  ],
+  "require-dev": {
+    "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4 || ^0.5.0 || ^0.6.0",
+    "squizlabs/php_codesniffer": "^3.1",
+    "wp-coding-standards/wpcs": "^1.0.0 || ^2.0.0"
+  },
+  "scripts": {
+    "format": "phpcbf --standard=phpcs.xml --report-summary --report-source",
+    "lint": "phpcs --standard=phpcs.xml"
+  },
+  "support": {
+    "issues": "https://github.com/Codeinwp/themeisle-onboarding/issues"
+  }
+}
