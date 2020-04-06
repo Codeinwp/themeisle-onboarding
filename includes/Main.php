@@ -100,7 +100,6 @@ class Main {
 		}
 
 		$theme_support = get_theme_support( 'themeisle-demo-import' );
-
 		if ( empty( $theme_support ) ) {
 			return false;
 		}
@@ -114,7 +113,7 @@ class Main {
 	 * @return void
 	 */
 	private function setup_admin() {
-		require_once 'includes/Admin.php';
+		require_once 'Admin.php';
 		$this->admin = new Admin();
 		$this->admin->init();
 	}
@@ -125,8 +124,8 @@ class Main {
 	 * @return void
 	 */
 	private function setup_api() {
-		require_once 'includes/Rest_Server.php';
-		require_once 'includes/importers/helpers/Helper.php';
+		require_once 'Rest_Server.php';
+		require_once 'importers/helpers/Helper.php';
 		$api = new Rest_Server();
 		$api->init();
 	}

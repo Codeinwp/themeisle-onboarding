@@ -1,9 +1,13 @@
 <?php
 /**
+ * Onboarding Logger.
+ *
  * @package    themeisle-onboarding
  */
 
-namespace TIOB;
+namespace TIOB\Importers\Helpers;
+
+use TIOB\Main;
 
 /**
  * Class Logger
@@ -56,7 +60,7 @@ class Logger {
 	private static $_instance;
 
 	/**
-	 * Themeisle_OB_WP_Import_Logger constructor.
+	 * Logger constructor.
 	 */
 	public function __construct() {
 		if ( ! defined( 'TI_OB_DEBUG_LOG' ) ) {

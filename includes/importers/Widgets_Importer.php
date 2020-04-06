@@ -9,10 +9,15 @@
  * @soundtrack Milk Carton Kid - The Milk Carton Kids
  */
 
+namespace TIOB\Importers;
+
+use WP_REST_Request;
+use WP_REST_Response;
+
 /**
  * Class Themeisle_OB_Widgets_Importer
  */
-class Themeisle_OB_Widgets_Importer {
+class Widgets_Importer {
 
 	/**
 	 * Import Widgets.
@@ -58,11 +63,12 @@ class Themeisle_OB_Widgets_Importer {
 	 * Widget import process.
 	 *
 	 * @param array $data Widgets data.
+	 * @return \WP_Error
 	 */
 	public function actually_import( $data ) {
 		global $wp_registered_sidebars;
 		if ( empty( $data ) || ! is_array( $data ) ) {
-			return new WP_Error( 'ti__ob_widget_err_1' );
+			return new \WP_Error( 'ti__ob_widget_err_1' );
 		}
 
 		$available_widgets = $this->available_widgets();

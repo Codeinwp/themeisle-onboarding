@@ -7,6 +7,14 @@
 
 namespace TIOB;
 
+use TIOB\Importers\Content_Importer;
+use TIOB\Importers\Plugin_Importer;
+use TIOB\Importers\Theme_Mods_Importer;
+use TIOB\Importers\Widgets_Importer;
+use WP_REST_Request;
+use WP_REST_Response;
+use WP_REST_Server;
+
 /**
  * Class Rest_Server
  */
@@ -60,7 +68,7 @@ class Rest_Server {
 	 */
 	public function register_endpoints() {
 		register_rest_route(
-			Themeisle_Onboarding::API_ROOT,
+			Main::API_ROOT,
 			'/initialize_sites_library',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -71,7 +79,7 @@ class Rest_Server {
 			)
 		);
 		register_rest_route(
-			Themeisle_Onboarding::API_ROOT,
+			Main::API_ROOT,
 			'/install_plugins',
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -82,7 +90,7 @@ class Rest_Server {
 			)
 		);
 		register_rest_route(
-			Themeisle_Onboarding::API_ROOT,
+			Main::API_ROOT,
 			'/import_content',
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -93,7 +101,7 @@ class Rest_Server {
 			)
 		);
 		register_rest_route(
-			Themeisle_Onboarding::API_ROOT,
+			Main::API_ROOT,
 			'/import_theme_mods',
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -104,7 +112,7 @@ class Rest_Server {
 			)
 		);
 		register_rest_route(
-			Themeisle_Onboarding::API_ROOT,
+			Main::API_ROOT,
 			'/import_widgets',
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -115,7 +123,7 @@ class Rest_Server {
 			)
 		);
 		register_rest_route(
-			Themeisle_Onboarding::API_ROOT,
+			Main::API_ROOT,
 			'/migrate_frontpage',
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -126,7 +134,7 @@ class Rest_Server {
 			)
 		);
 		register_rest_route(
-			Themeisle_Onboarding::API_ROOT,
+			Main::API_ROOT,
 			'/dismiss_migration',
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -252,8 +260,8 @@ class Rest_Server {
 
 		$options = array(
 			'theme_name'          => ! empty( $data[ $old_theme ]['theme_name'] ) ? esc_html( $data[ $old_theme ]['theme_name'] ) : '',
-			'screenshot'          => get_template_directory_uri() . Themeisle_Onboarding::OBOARDING_PATH . '/migration/' . $folder_name . '/' . $data[ $old_theme ]['template'] . '.png',
-			'template'            => get_template_directory() . Themeisle_Onboarding::OBOARDING_PATH . '/migration/' . $folder_name . '/' . $data[ $old_theme ]['template'] . '.json',
+			'screenshot'          => get_template_directory_uri() . Main::OBOARDING_PATH . '/migration/' . $folder_name . '/' . $data[ $old_theme ]['template'] . '.png',
+			'template'            => get_template_directory() . Main::OBOARDING_PATH . '/migration/' . $folder_name . '/' . $data[ $old_theme ]['template'] . '.json',
 			'template_name'       => $data[ $old_theme ]['template'],
 			'heading'             => $data[ $old_theme ]['heading'],
 			'description'         => $data[ $old_theme ]['description'],
@@ -488,8 +496,8 @@ class Rest_Server {
 	 * @return WP_REST_Response
 	 */
 	public function run_plugin_importer( WP_REST_Request $request ) {
-		require_once 'importers/class-themeisle-ob-plugin-importer.php';
-		if ( ! class_exists( 'Themeisle_OB_Plugin_Importer' ) ) {
+		require_once 'importers/Plugin_Importer.php';
+		if ( ! class_exists( '\TIOB\Importers\Plugin_Importer' ) ) {
 			return new WP_REST_Response(
 				array(
 					'data'    => 'ti__ob_rest_err_1',
@@ -497,22 +505,20 @@ class Rest_Server {
 				)
 			);
 		}
-		$plugin_importer = new Themeisle_OB_Plugin_Importer();
-		$import          = $plugin_importer->install_plugins( $request );
-
-		return $import;
+		$plugin_importer = new Plugin_Importer();
+		return $plugin_importer->install_plugins( $request );
 	}
 
 	/**
-	 * Run the XML importer.l
+	 * Run the XML importer.
 	 *
 	 * @param WP_REST_Request $request the async request.
 	 *
 	 * @return WP_REST_Response
 	 */
 	public function run_xml_importer( WP_REST_Request $request ) {
-		require_once 'importers/class-themeisle-ob-content-importer.php';
-		if ( ! class_exists( 'Themeisle_OB_Content_Importer' ) ) {
+		require_once 'importers/Content_Importer.php';
+		if ( ! class_exists( '\TIOB\Importers\Content_Importer' ) ) {
 			return new WP_REST_Response(
 				array(
 					'data'    => 'ti__ob_rest_err_2',
@@ -520,10 +526,8 @@ class Rest_Server {
 				)
 			);
 		}
-		$content_importer = new Themeisle_OB_Content_Importer();
-		$import           = $content_importer->import_remote_xml( $request );
-
-		return $import;
+		$content_importer = new Content_Importer();
+		return $content_importer->import_remote_xml( $request );
 	}
 
 	/**
@@ -534,9 +538,9 @@ class Rest_Server {
 	 * @return WP_REST_Response
 	 */
 	public function run_theme_mods_importer( WP_REST_Request $request ) {
-		require_once 'importers/class-themeisle-ob-theme-mods-importer.php';
+		require_once 'importers/Theme_Mods_Importer.php';
 
-		if ( ! class_exists( 'Themeisle_OB_Theme_Mods_Importer' ) ) {
+		if ( ! class_exists( '\TIOB\Importers\Theme_Mods_Importer' ) ) {
 			return new WP_REST_Response(
 				array(
 					'data'    => 'ti__ob_rest_err_3',
@@ -544,7 +548,7 @@ class Rest_Server {
 				)
 			);
 		}
-		$theme_mods_importer = new Themeisle_OB_Theme_Mods_Importer();
+		$theme_mods_importer = new Theme_Mods_Importer();
 
 		return $theme_mods_importer->import_theme_mods( $request );
 	}
@@ -557,8 +561,8 @@ class Rest_Server {
 	 * @return WP_REST_Response
 	 */
 	public function run_widgets_importer( WP_REST_Request $request ) {
-		require_once 'importers/class-themeisle-ob-widgets-importer.php';
-		if ( ! class_exists( 'Themeisle_OB_Widgets_Importer' ) ) {
+		require_once 'importers/Widgets_Importer.php';
+		if ( ! class_exists( '\TIOB\Importers\Widgets_Importer' ) ) {
 			return new WP_REST_Response(
 				array(
 					'data'    => 'ti__ob_rest_err_4',
@@ -566,7 +570,7 @@ class Rest_Server {
 				)
 			);
 		}
-		$theme_mods_importer = new Themeisle_OB_Widgets_Importer();
+		$theme_mods_importer = new Widgets_Importer();
 		$import              = $theme_mods_importer->import_widgets( $request );
 
 		set_theme_mod( 'ti_content_imported', 'yes' );

@@ -2,18 +2,22 @@
 /**
  * WordPress eXtended RSS file parser implementations
  *
- * @package    WordPress
- * @subpackage Importer
+ * @package    themeisle-onboarding
  */
+
+namespace TIOB\Importers\WP;
+
+use TIOB\Importers\Helpers\Logger;
+use WP_Error;
 
 /**
  * WordPress Importer class for managing parsing of WXR files.
  */
-class Themeisle_OB_WXR_Parser {
+class WXR_Parser {
 	/**
 	 * Logger instance.
 	 *
-	 * @var Themeisle_OB_WP_Import_Logger
+	 * @var Logger
 	 */
 	private $logger;
 
@@ -25,13 +29,13 @@ class Themeisle_OB_WXR_Parser {
 	private $page_builder;
 
 	/**
-	 * Themeisle_OB_WXR_Parser constructor.
+	 * WXR_Parser constructor.
 	 *
 	 * @param string $page_builder the page builder used.
 	 */
 	public function __construct( $page_builder = '' ) {
 		$this->page_builder = $page_builder;
-		$this->logger       = Themeisle_OB_WP_Import_Logger::get_instance();
+		$this->logger       = Logger::get_instance();
 	}
 
 	/**
@@ -47,7 +51,7 @@ class Themeisle_OB_WXR_Parser {
 
 		if ( $this->page_builder === 'beaver-builder' || $this->page_builder === 'beaver builder' ) {
 			if ( extension_loaded( 'xml' ) ) {
-				$parser = new Themeisle_OB_Beaver_ParserXML();
+				$parser = new Beaver_ParserXML();
 
 				$result = $parser->parse( $file );
 			} else {
@@ -66,8 +70,8 @@ class Themeisle_OB_WXR_Parser {
 
 		// Attempt to use proper XML parsers first
 		if ( extension_loaded( 'simplexml' ) ) {
-			$parser = new Themeisle_OB_WXR_Parser_SimpleXML();
-			$this->logger->log( 'Using Themeisle_OB_WXR_Parser_SimpleXML...', 'progress' );
+			$parser = new WXR_Parser_SimpleXML();
+			$this->logger->log( 'Using WXR_Parser_SimpleXML...', 'progress' );
 			$result = $parser->parse( $file );
 			// If SimpleXML succeeds or this is an invalid WXR file then return the results
 			if ( ! is_wp_error( $result ) || 'SimpleXML_parse_error' != $result->get_error_code() ) {
@@ -76,8 +80,8 @@ class Themeisle_OB_WXR_Parser {
 				return $result;
 			}
 		} elseif ( extension_loaded( 'xml' ) ) {
-			$this->logger->log( 'Using Themeisle_OB_WXR_Parser_XML...', 'progress' );
-			$parser = new Themeisle_OB_WXR_Parser_XML;
+			$this->logger->log( 'Using WXR_Parser_XML...', 'progress' );
+			$parser = new WXR_Parser_XML;
 			$result = $parser->parse( $file );
 			// If XMLParser succeeds or this is an invalid WXR file then return the results
 			if ( ! is_wp_error( $result ) || 'XML_parse_error' != $result->get_error_code() ) {
@@ -99,7 +103,7 @@ class Themeisle_OB_WXR_Parser {
 /**
  * WXR Parser that makes use of the SimpleXML PHP extension.
  */
-class Themeisle_OB_WXR_Parser_SimpleXML {
+class WXR_Parser_SimpleXML {
 	/**
 	 * @param string $file file path.
 	 *
@@ -110,7 +114,7 @@ class Themeisle_OB_WXR_Parser_SimpleXML {
 		WP_Filesystem();
 		$authors         = $posts = $categories = $tags = $terms = array();
 		$internal_errors = libxml_use_internal_errors( true );
-		$dom             = new DOMDocument;
+		$dom             = new \DOMDocument;
 		$old_value       = null;
 		if ( function_exists( 'libxml_disable_entity_loader' ) ) {
 			$old_value = libxml_disable_entity_loader( true );
@@ -302,7 +306,7 @@ class Themeisle_OB_WXR_Parser_SimpleXML {
 /**
  * WXR Parser that makes use of the XML Parser PHP extension.
  */
-class Themeisle_OB_WXR_Parser_XML {
+class WXR_Parser_XML {
 	/**
 	 * XML Tags.
 	 *
@@ -536,13 +540,13 @@ class Themeisle_OB_WXR_Parser_XML {
 }
 
 /**
- * Class Themeisle_OB_Beaver_ParserXML
+ * Class Beaver_ParserXML
  *
  * Brought in from Beaver Builder Lite.
  *
  * Beaver XML Parser
  */
-class Themeisle_OB_Beaver_ParserXML extends Themeisle_OB_WXR_Parser_XML {
+class Beaver_ParserXML extends WXR_Parser_XML {
 
 	function tag_close( $parser, $tag ) {
 		switch ( $tag ) {
@@ -569,7 +573,7 @@ class Themeisle_OB_Beaver_ParserXML extends Themeisle_OB_WXR_Parser_XML {
 			case 'wp:postmeta':
 				if ( ! empty( $this->sub_data ) ) {
 					if ( stristr( $this->sub_data['key'], '_fl_builder_' ) ) {
-						$this->sub_data['value'] = Themeisle_OB_Beaver_Data_Fix::run( serialize( $this->sub_data['value'] ) );
+						$this->sub_data['value'] = Beaver_Data_Fix::run( serialize( $this->sub_data['value'] ) );
 					}
 					$this->data['postmeta'][] = $this->sub_data;
 				}
@@ -623,7 +627,7 @@ class Themeisle_OB_Beaver_ParserXML extends Themeisle_OB_WXR_Parser_XML {
  *
  * @since 1.8
  */
-final class Themeisle_OB_Beaver_Data_Fix {
+final class Beaver_Data_Fix {
 
 	/**
 	 * @since 1.8
@@ -642,7 +646,7 @@ final class Themeisle_OB_Beaver_Data_Fix {
 			return $data;
 		}
 
-		return preg_replace_callback( '!s:(\d+):([\\\\]?"[\\\\]?"|[\\\\]?"((.*?)[^\\\\])[\\\\]?");!', 'Themeisle_OB_Beaver_Data_Fix::regex_callback', $data );
+		return preg_replace_callback( '!s:(\d+):([\\\\]?"[\\\\]?"|[\\\\]?"((.*?)[^\\\\])[\\\\]?");!', 'Beaver_Data_Fix::regex_callback', $data );
 	}
 
 	/**

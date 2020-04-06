@@ -7,8 +7,10 @@
 
 namespace TIOB;
 
+use TIOB\Importers\Helpers\Logger;
+
 /**
- * Class Themeisle_OB_Admin
+ * Class Admin
  *
  * @package themeisle-onboarding
  */
@@ -96,6 +98,8 @@ class Admin {
 
 	/**
 	 * Localize the sites library.
+	 *
+	 * @param array $array the about page array.
 	 *
 	 * @return array
 	 */

@@ -1,28 +1,36 @@
 <?php
 /**
- * Author:  Andrei Baicus <andrei@themeisle.com>
- * On:      21/06/2018
+ * Content Import Handling
  *
  * @package    themeisle-onboarding
- * @soundtrack Guess Things Happen That Way - Johnny Cash
  */
 
+namespace TIOB\Importers;
+
+use TIOB\Importers\Helpers\Helper;
+use TIOB\Importers\Helpers\Importer_Alterator;
+use TIOB\Importers\Helpers\Logger;
+use TIOB\Importers\WP\WP_Import;
+use WP_Error;
+use WP_REST_Request;
+use WP_REST_Response;
+
 /**
- * Class Themeisle_OB_Content_Importer
+ * Class Content_Importer
  *
  * @package themeisle-onboarding
  */
-class Themeisle_OB_Content_Importer {
-	use Themeisle_OB;
+class Content_Importer {
+	use Helper;
 
 	private $logger = null;
 
 	/**
-	 * Themeisle_OB_Content_Importer constructor.
+	 * Constructor.
 	 */
 	public function __construct() {
 		$this->load_importer();
-		$this->logger = Themeisle_OB_WP_Import_Logger::get_instance();
+		$this->logger = Logger::get_instance();
 	}
 
 	/**
@@ -46,10 +54,10 @@ class Themeisle_OB_Content_Importer {
 
 		do_action( 'themeisle_ob_before_xml_import' );
 
-		$params           = $request->get_body_params();
-		$body             = $params['data'];
-		$content_file_url = $body['contentFile'];
-		$page_builder     = isset( $body['editor'] ) ? $body['editor'] : '';
+		$params = $request->get_body_params();
+		$body = $params[ 'data' ];
+		$content_file_url = $body[ 'contentFile' ];
+		$page_builder = isset( $body[ 'editor' ] ) ? $body[ 'editor' ] : '';
 
 		if ( empty( $content_file_url ) ) {
 			$this->logger->log( "No content file to import at url {$content_file_url}" );
@@ -62,7 +70,7 @@ class Themeisle_OB_Content_Importer {
 			);
 		}
 
-		if ( ! isset( $body['source'] ) || empty( $body['source'] ) ) {
+		if ( ! isset( $body[ 'source' ] ) || empty( $body[ 'source' ] ) ) {
 			$this->logger->log( 'No source defined for the import.' );
 
 			return new WP_REST_Response(
@@ -74,11 +82,11 @@ class Themeisle_OB_Content_Importer {
 		}
 
 		set_time_limit( 0 );
-		require_once( ABSPATH . 'wp-admin/includes/file.php' );
-		require_once( ABSPATH . 'wp-admin/includes/image.php' );
-		require_once( ABSPATH . 'wp-admin/includes/media.php' );
+		require_once(ABSPATH . 'wp-admin/includes/file.php');
+		require_once(ABSPATH . 'wp-admin/includes/image.php');
+		require_once(ABSPATH . 'wp-admin/includes/media.php');
 
-		if ( $body['source'] === 'remote' ) {
+		if ( $body[ 'source' ] === 'remote' ) {
 			$this->logger->log( 'Saving remote XML', 'progress' );
 
 			$response_file = wp_remote_get( $content_file_url );
@@ -106,7 +114,7 @@ class Themeisle_OB_Content_Importer {
 			);
 		}
 
-		if ( $body['source'] === 'remote' ) {
+		if ( $body[ 'source' ] === 'remote' ) {
 			unlink( $content_file_path );
 		}
 
@@ -116,14 +124,14 @@ class Themeisle_OB_Content_Importer {
 		$this->maybe_bust_elementor_cache();
 
 		// Set front page.
-		if ( isset( $body['frontPage'] ) ) {
-			$frontpage_id = $this->setup_front_page( $body['frontPage'], $body['demoSlug'] );
+		if ( isset( $body[ 'frontPage' ] ) ) {
+			$frontpage_id = $this->setup_front_page( $body[ 'frontPage' ], $body[ 'demoSlug' ] );
 		}
 		do_action( 'themeisle_ob_after_front_page_setup' );
 
 		// Set shop pages.
-		if ( isset( $body['shopPages'] ) ) {
-			$this->setup_shop_pages( $body['shopPages'], $body['demoSlug'] );
+		if ( isset( $body[ 'shopPages' ] ) ) {
+			$this->setup_shop_pages( $body[ 'shopPages' ], $body[ 'demoSlug' ] );
 		}
 		do_action( 'themeisle_ob_after_shop_pages_setup' );
 
@@ -148,8 +156,8 @@ class Themeisle_OB_Content_Importer {
 	 */
 	public function save_xhr_return_path( $content ) {
 		$wp_upload_dir = wp_upload_dir( null, false );
-		$file_path     = $wp_upload_dir['basedir'] . '/themeisle-demo-import.xml';
-		require_once( ABSPATH . '/wp-admin/includes/file.php' );
+		$file_path = $wp_upload_dir[ 'basedir' ] . '/themeisle-demo-import.xml';
+		require_once(ABSPATH . '/wp-admin/includes/file.php');
 		global $wp_filesystem;
 		WP_Filesystem();
 		$wp_filesystem->put_contents( $file_path, $content );
@@ -160,16 +168,16 @@ class Themeisle_OB_Content_Importer {
 	/**
 	 * Set up front page options by `post_name`.
 	 *
-	 * @param array  $args      the front page array.
+	 * @param array $args the front page array.
 	 * @param string $demo_slug the importing demo slug.
 	 *
-	 * @return int
+	 * @return int|void
 	 */
 	public function setup_front_page( $args, $demo_slug ) {
 		if ( ! is_array( $args ) ) {
 			return;
 		}
-		if ( empty( $args['front_page'] ) && empty( $args['blog_page'] ) ) {
+		if ( empty( $args[ 'front_page' ] ) && empty( $args[ 'blog_page' ] ) ) {
 			$this->logger->log( 'No front page to set up.', 'success' );
 
 			return null;
@@ -177,15 +185,15 @@ class Themeisle_OB_Content_Importer {
 
 		update_option( 'show_on_front', 'page' );
 
-		if ( isset( $args['front_page'] ) && $args['front_page'] !== null ) {
-			$front_page_obj = get_page_by_path( $this->cleanup_page_slug( $args['front_page'], $demo_slug ) );
+		if ( isset( $args[ 'front_page' ] ) && $args[ 'front_page' ] !== null ) {
+			$front_page_obj = get_page_by_path( $this->cleanup_page_slug( $args[ 'front_page' ], $demo_slug ) );
 			if ( isset( $front_page_obj->ID ) ) {
 				update_option( 'page_on_front', $front_page_obj->ID );
 			}
 		}
 
-		if ( isset( $args['blog_page'] ) && $args['blog_page'] !== null ) {
-			$blog_page_obj = get_page_by_path( $this->cleanup_page_slug( $args['blog_page'], $demo_slug ) );
+		if ( isset( $args[ 'blog_page' ] ) && $args[ 'blog_page' ] !== null ) {
+			$blog_page_obj = get_page_by_path( $this->cleanup_page_slug( $args[ 'blog_page' ], $demo_slug ) );
 			if ( isset( $blog_page_obj->ID ) ) {
 				update_option( 'page_for_posts', $blog_page_obj->ID );
 			}
@@ -201,7 +209,7 @@ class Themeisle_OB_Content_Importer {
 	/**
 	 * Set up shop pages options by `post_name`.
 	 *
-	 * @param array  $pages     the shop pages array.
+	 * @param array $pages the shop pages array.
 	 * @param string $demo_slug the demo slug.
 	 */
 	public function setup_shop_pages( $pages, $demo_slug ) {
@@ -244,8 +252,8 @@ class Themeisle_OB_Content_Importer {
 	 * Import file
 	 *
 	 * @param string $file_path the file path to import.
-	 * @param array  $req_body  the request body to be passed to the alterator.
-	 * @param string $builder   the page builder used.
+	 * @param array $req_body the request body to be passed to the alterator.
+	 * @param string $builder the page builder used.
 	 *
 	 * @return WP_Error|true
 	 */
@@ -254,20 +262,31 @@ class Themeisle_OB_Content_Importer {
 			return new WP_Error( 'ti__ob_content_err_1', 'No content file' );
 		}
 
-		require_once 'helpers/class-themeisle-ob-importer-alterator.php';
-		$alterator = new Themeisle_OB_Importer_Alterator( $req_body );
-		$importer  = new Themeisle_OB_WP_Import( $builder );
-		$result    = $importer->import( $file_path );
+		require_once 'helpers/Importer_Alterator.php';
+		$alterator = new Importer_Alterator( $req_body );
 
-		return $result;
+
+		if ( ! class_exists( '\WP_Importer' ) ) {
+			$class_wp_importer = ABSPATH . 'wp-admin/includes/class-wp-importer.php';
+			if ( file_exists( $class_wp_importer ) && is_readable( $class_wp_importer ) ) {
+				require $class_wp_importer;
+			}
+		}
+		if ( ! class_exists( '\WP_Importer' ) ) {
+			return new WP_Error( 'WP_Importer Core class doesn\'t exist.' );
+		}
+
+		$importer = new WP_Import( $builder );
+
+		return $importer->import( $file_path );
 	}
 
 	/**
 	 * Load the importer.
 	 */
 	private function load_importer() {
-		require_once dirname( __FILE__ ) . '/helpers/wp-importer/class-themeisle-ob-wordpress-import.php';
-		require_once dirname( __FILE__ ) . '/helpers/wp-importer/parsers.php';
+		require_once dirname( __FILE__ ) . '/wp/WP_Import.php';
+		require_once dirname( __FILE__ ) . '/wp/parsers.php';
 	}
 
 }

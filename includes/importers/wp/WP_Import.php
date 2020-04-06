@@ -3,27 +3,21 @@
  * WordPress WXR Importer.
  */
 
-if ( ! class_exists( 'WP_Importer' ) ) {
-	$class_wp_importer = ABSPATH . 'wp-admin/includes/class-wp-importer.php';
-	if ( file_exists( $class_wp_importer ) && is_readable( $class_wp_importer ) ) {
-		require $class_wp_importer;
-	}
-}
+namespace TIOB\Importers\WP;
+
+use TIOB\Importers\Helpers\Helper;
+use TIOB\Importers\Helpers\Logger;
+use WP_Importer;
 
 /**
  * WordPress Importer class for managing the import process of a WXR file
  *
- * @package    WordPress
- * @subpackage Importer
+ * @package    themeisle-onboarding
  */
-if ( ! class_exists( 'WP_Importer' ) ) {
-	return;
-}
-
-class Themeisle_OB_WP_Import extends WP_Importer {
-	use Themeisle_OB;
+class WP_Import extends WP_Importer {
+	use Helper;
 	/**
-	 * @var Themeisle_OB_WP_Import_Logger
+	 * @var Logger
 	 */
 	private $logger;
 
@@ -89,7 +83,7 @@ class Themeisle_OB_WP_Import extends WP_Importer {
 	 * Logger initialized.
 	 */
 	private function set_logger() {
-		$this->logger = Themeisle_OB_WP_Import_Logger::get_instance();
+		$this->logger = Logger::get_instance();
 	}
 
 	/**

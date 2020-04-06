@@ -4,18 +4,16 @@
  *
  * Used to alter import content.
  *
- * Author:  Andrei Baicus <andrei@themeisle.com>
- * On:      21/06/2018
- *
  * @package    themeisle-onboarding
  */
 
 
+namespace TIOB\Importers\Helpers;
 /**
- * Class Themeisle_OB_Importer_Alterator
+ * Class Importer_Alterator
  */
-class Themeisle_OB_Importer_Alterator {
-	use Themeisle_OB;
+class Importer_Alterator {
+	use Helper;
 
 	/**
 	 * Post map. Holds post type / count.
@@ -42,7 +40,7 @@ class Themeisle_OB_Importer_Alterator {
 	private $site_json_data;
 
 	/**
-	 * Themeisle_OB_Importer_Alterator constructor.
+	 * Importer_Alterator constructor.
 	 *
 	 * @param array $site_json_data the sites data passed from content import.
 	 */
@@ -210,7 +208,7 @@ class Themeisle_OB_Importer_Alterator {
 			$args      = array(
 				'post_type' => $post_type,
 			);
-			$the_query = new WP_Query( $args );
+			$the_query = new \WP_Query( $args );
 
 			$this->post_map[ $post_type ] = absint( $the_query->found_posts );
 		}

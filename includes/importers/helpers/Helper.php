@@ -5,7 +5,7 @@
  * @package    themeisle-onboarding
  */
 
-namespace TIOB;
+namespace TIOB\Importers\Helpers;
 
 trait Helper {
 	/**

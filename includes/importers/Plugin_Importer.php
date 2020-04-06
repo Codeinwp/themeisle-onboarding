@@ -2,17 +2,22 @@
 /**
  * Plugin Importer.
  *
- * Author:  Andrei Baicus <andrei@themeisle.com>
- * On:      21/06/2018
- *
  * @package    themeisle-onboarding
- * @soundtrack Kick In the Door (2014 Remastered Version) - The Notorious B.I.G.
  */
 
+namespace TIOB\Importers;
+
+use Plugin_Upgrader;
+use TIOB\Importers\Helpers\Quiet_Skin;
+use TIOB\Importers\Helpers\Quiet_Skin_Legacy;
+use TIOB\Importers\Helpers\Logger;
+use WP_REST_Request;
+use WP_REST_Response;
+
 /**
- * Class Themeisle_OB_Plugin_Importer
+ * Class Plugin_Importer
  */
-class Themeisle_OB_Plugin_Importer {
+class Plugin_Importer {
 
 	/**
 	 * Log
@@ -24,7 +29,7 @@ class Themeisle_OB_Plugin_Importer {
 	/**
 	 * Logger Instance.
 	 *
-	 * @var Themeisle_OB_WP_Import_Logger
+	 * @var Logger
 	 */
 	private $logger;
 
@@ -44,7 +49,7 @@ class Themeisle_OB_Plugin_Importer {
 	);
 
 	public function __construct() {
-		$this->logger = Themeisle_OB_WP_Import_Logger::get_instance();
+		$this->logger = Logger::get_instance();
 	}
 
 	/**
@@ -70,7 +75,7 @@ class Themeisle_OB_Plugin_Importer {
 		do_action( 'themeisle_ob_before_plugins_install' );
 
 		$plugins = $request->get_body_params();
-		$plugins = $plugins['data'];
+		$plugins = $plugins[ 'data' ];
 
 		foreach ( $plugins as $slug => $state ) {
 			if ( $state === 'false' ) {
@@ -146,11 +151,11 @@ class Themeisle_OB_Plugin_Importer {
 
 		do_action( 'themeisle_ob_before_single_plugin_install', $plugin_slug );
 
-		require_once( ABSPATH . 'wp-admin/includes/plugin-install.php' );
-		require_once( ABSPATH . 'wp-admin/includes/file.php' );
-		require_once( ABSPATH . 'wp-admin/includes/misc.php' );
-		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
-		require_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
+		require_once(ABSPATH . 'wp-admin/includes/plugin-install.php');
+		require_once(ABSPATH . 'wp-admin/includes/file.php');
+		require_once(ABSPATH . 'wp-admin/includes/misc.php');
+		require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+		require_once(ABSPATH . 'wp-admin/includes/class-wp-upgrader.php');
 
 		$api = plugins_api(
 			'plugin_information',
@@ -173,23 +178,23 @@ class Themeisle_OB_Plugin_Importer {
 			)
 		);
 
-		if ( version_compare( PHP_VERSION, '5.6' ) === - 1 ) {
-			require_once 'helpers/class-themeisle-ob-quiet-skin-legacy.php';
-			$skin = new Themeisle_OB_Quiet_Skin_Legacy(
-				array(
+		if ( version_compare( PHP_VERSION, '5.6' ) === -1 ) {
+			require_once 'helpers/Quiet_Skin_Legacy.php';
+			$skin = new Quiet_Skin_Legacy(
+				[
 					'api' => $api,
-				)
+				]
 			);
 		} else {
-			require_once 'helpers/class-themeisle-ob-quiet-skin.php';
-			$skin = new Themeisle_OB_Quiet_Skin(
+			require_once 'helpers/Quiet_Skin.php';
+			$skin = new Quiet_Skin(
 				array(
 					'api' => $api,
 				)
 			);
 		}
 		$upgrader = new Plugin_Upgrader( $skin );
-		$install  = $upgrader->install( $api->download_link );
+		$install = $upgrader->install( $api->download_link );
 		if ( $install !== true ) {
 			$this->log .= 'Error: Install process failed (' . ucwords( $plugin_slug ) . ').' . "\n";
 
@@ -244,7 +249,7 @@ class Themeisle_OB_Plugin_Importer {
 		}
 
 		$plugins_dir = WP_PLUGIN_DIR . '/';
-		$entry       = $slug . '/' . $slug . '.php';
+		$entry = $slug . '/' . $slug . '.php';
 		if ( ! file_exists( $plugins_dir . $entry ) ) {
 			$entry = $slug . '/index.php';
 		}
@@ -260,7 +265,7 @@ class Themeisle_OB_Plugin_Importer {
 	private function activate_single_plugin( $plugin_slug ) {
 		$plugin_dir = WP_PLUGIN_DIR . '/' . $plugin_slug;
 
-		$plugin_path  = $this->get_plugin_path( $plugin_slug );
+		$plugin_path = $this->get_plugin_path( $plugin_slug );
 		$plugin_entry = $this->get_plugin_entry( $plugin_slug );
 
 		if ( ! file_exists( $plugin_path ) ) {
@@ -271,7 +276,7 @@ class Themeisle_OB_Plugin_Importer {
 
 		do_action( 'themeisle_ob_before_single_plugin_activation', $plugin_slug );
 
-		include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+		include_once(ABSPATH . 'wp-admin/includes/plugin.php');
 
 		if ( is_plugin_active( $plugin_entry ) ) {
 			$this->log .= '"' . ucwords( $plugin_slug ) . '" already active.' . "\n";
@@ -294,7 +299,7 @@ class Themeisle_OB_Plugin_Importer {
 	 */
 	private function maybe_provide_activation_help( $slug, $path ) {
 		if ( $slug === 'woocommerce' ) {
-			require_once( $path . '/includes/admin/wc-admin-functions.php' );
+			require_once($path . '/includes/admin/wc-admin-functions.php');
 		}
 	}
 }

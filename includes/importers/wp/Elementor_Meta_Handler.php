@@ -5,16 +5,19 @@
  * This is needed because by default, the importer breaks our JSON meta.
  *
  * @package    themeisle-onboarding
- * @soundtrack All Apologies (Live) - Nirvana
  */
 
+namespace TIOB\Importers\WP;
+
+use TIOB\Importers\Helpers\Helper;
+
 /**
- * Class Themeisle_OB_Elementor_Meta_Handler
+ * Class Elementor_Meta_Handler
  *
  * @package themeisle-onboarding
  */
-class Themeisle_OB_Elementor_Meta_Handler {
-	use Themeisle_OB;
+class Elementor_Meta_Handler {
+	use Helper;
 
 	/**
 	 * Elementor meta key.
@@ -41,9 +44,10 @@ class Themeisle_OB_Elementor_Meta_Handler {
 	 * Themeisle_OB_Elementor_Meta_Handler constructor.
 	 *
 	 * @param string $unfiltered_value the unfiltered meta value.
+	 * @param string $site_url the site url.
 	 */
 	public function __construct( $unfiltered_value, $site_url ) {
-		$this->value      = $unfiltered_value;
+		$this->value = $unfiltered_value;
 		$this->import_url = $site_url;
 	}
 
@@ -57,8 +61,8 @@ class Themeisle_OB_Elementor_Meta_Handler {
 	/**
 	 * Allow JSON escaping.
 	 *
-	 * @param string $val  meta value.
-	 * @param string $key  meta key.
+	 * @param string $val meta value.
+	 * @param string $key meta key.
 	 * @param string $type meta type.
 	 *
 	 * @return array|string
@@ -85,7 +89,7 @@ class Themeisle_OB_Elementor_Meta_Handler {
 			return;
 		}
 
-		$site_url  = get_site_url();
+		$site_url = get_site_url();
 		$url_parts = parse_url( $site_url );
 
 		array_walk_recursive(
@@ -97,11 +101,11 @@ class Themeisle_OB_Elementor_Meta_Handler {
 
 				$url = parse_url( $value );
 
-				if ( ! isset( $url['host'] ) || ! isset( $url_parts['host'] ) ) {
+				if ( ! isset( $url[ 'host' ] ) || ! isset( $url_parts[ 'host' ] ) ) {
 					return;
 				}
 
-				if ( $url['host'] !== $url_parts['host'] ) {
+				if ( $url[ 'host' ] !== $url_parts[ 'host' ] ) {
 					$value = str_replace( $this->import_url, $site_url, $value );
 				}
 			}

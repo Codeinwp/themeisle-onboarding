@@ -2,18 +2,20 @@
 /**
  * Theme Mods Importer.
  *
- * Author:  Andrei Baicus <andrei@themeisle.com>
- * On:      21/06/2018
- *
  * @package    themeisle-onboarding
- * @soundtrack Twentieth Century Fox - The Doors
  */
 
+namespace TIOB\Importers;
+
+use TIOB\Importers\Helpers\Helper;
+use WP_REST_Request;
+use WP_REST_Response;
+
 /**
- * Class Themeisle_OB_Theme_Mods_Importer
+ * Class Theme_Mods_Importer
  */
-class Themeisle_OB_Theme_Mods_Importer {
-	use Themeisle_OB;
+class Theme_Mods_Importer {
+	use Helper;
 
 	/**
 	 * Log
