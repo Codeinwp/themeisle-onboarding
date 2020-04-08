@@ -41,7 +41,7 @@ class Elementor_Meta_Handler {
 	private $import_url = null;
 
 	/**
-	 * Themeisle_OB_Elementor_Meta_Handler constructor.
+	 * Elementor_Meta_Handler constructor.
 	 *
 	 * @param string $unfiltered_value the unfiltered meta value.
 	 * @param string $site_url the site url.

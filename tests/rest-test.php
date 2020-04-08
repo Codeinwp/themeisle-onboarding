@@ -5,6 +5,10 @@
  * @package themeisle-onboarding
  */
 
+use TIOB\Importers\Widgets_Importer;
+use TIOB\Main;
+use TIOB\Rest_Server;
+
 /**
  * Test onboarding loading.
  */
@@ -12,7 +16,7 @@ class Onboarding_Rest_Test extends WP_UnitTestCase {
 	public static $admin_id;
 
 	/**
-	 * @var Themeisle_OB_Rest_Server
+	 * @var Rest_Server
 	 */
 	private $rest_api;
 
@@ -22,7 +26,7 @@ class Onboarding_Rest_Test extends WP_UnitTestCase {
 	private $json;
 
 	/**
-	 * @var Themeisle_OB_Widgets_Importer
+	 * @var Widgets_Importer
 	 */
 	private $widget_importer;
 
@@ -59,19 +63,19 @@ class Onboarding_Rest_Test extends WP_UnitTestCase {
 		tests_add_filter( 'template_directory', function () {
 			return dirname( __FILE__ ) . '/sample-theme';
 		} );
-		Themeisle_Onboarding::instance();
+		Main::instance();
 
 		$this->json     = json_decode( file_get_contents( dirname( __FILE__ ) . '/sample-theme/onboarding/neve-main/data.json' ), true );
-		$this->rest_api = new Themeisle_OB_Rest_Server();
+		$this->rest_api = new Rest_Server();
 		$this->rest_api->init();
 
-		require_once dirname( __FILE__ ) . '/../includes/importers/class-themeisle-ob-widgets-importer.php';
-		$this->widget_importer = new Themeisle_OB_Widgets_Importer();
+		require_once dirname( __FILE__ ) . '/../includes/importers/Widgets_Importer.php';
+		$this->widget_importer = new Widgets_Importer();
 		add_filter( 'async_update_translation', '__return_false' );
 	}
 
 	/**
-	 * @covers Themeisle_OB_Rest_Server::init
+	 * @covers \TIOB\Rest_Server::init
 	 */
 	public function test_theme_support_loading() {
 
@@ -83,7 +87,7 @@ class Onboarding_Rest_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers Themeisle_OB_Theme_Mods_Importer::import_theme_mods
+	 * @covers \TIOB\Importers\Theme_Mods_Importer::import_theme_mods
 	 */
 	public function test_theme_mods_importing() {
 
@@ -110,7 +114,7 @@ class Onboarding_Rest_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers Themeisle_OB_Plugin_Importer::install_plugins
+	 * @covers \TIOB\Importers\Plugin_Importer::install_plugins
 	 */
 	public function test_plugin_importing() {
 		$request = new WP_REST_Request();
@@ -135,7 +139,7 @@ class Onboarding_Rest_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers Themeisle_OB_Content_Importer::import_remote_xml
+	 * @covers \TIOB\Importers\Content_Importer::import_remote_xml
 	 */
 	public function test_content_import() {
 		$request = new WP_REST_Request();
@@ -170,7 +174,7 @@ class Onboarding_Rest_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers Themeisle_OB_Widgets_Importer::import_widgets
+	 * @covers \TIOB\Importers\Widgets_Importer::import_widgets
 	 */
 	public function test_widgets_import() {
 		$this->remove_all_widgets();

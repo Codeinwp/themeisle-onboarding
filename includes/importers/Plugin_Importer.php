@@ -74,14 +74,7 @@ class Plugin_Importer {
 
 		do_action( 'themeisle_ob_before_plugins_install' );
 
-		$plugins = $request->get_body_params();
-		$plugins = $plugins[ 'data' ];
-
-		foreach ( $plugins as $slug => $state ) {
-			if ( $state === 'false' ) {
-				unset( $plugins[ $slug ] );
-			}
-		}
+		$plugins = $request->get_json_params();
 
 		if ( empty( $plugins ) || ! is_array( $plugins ) ) {
 			return new WP_REST_Response(
@@ -90,6 +83,12 @@ class Plugin_Importer {
 					'log'     => $this->log,
 				)
 			);
+		}
+
+		foreach ( $plugins as $slug => $state ) {
+			if ( ! $state || empty( $state )) {
+				unset( $plugins[ $slug ] );
+			}
 		}
 
 		$this->run_plugins_install( $plugins );

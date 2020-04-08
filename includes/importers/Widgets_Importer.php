@@ -15,7 +15,7 @@ use WP_REST_Request;
 use WP_REST_Response;
 
 /**
- * Class Themeisle_OB_Widgets_Importer
+ * Class Widgets_Importer
  */
 class Widgets_Importer {
 
@@ -27,7 +27,7 @@ class Widgets_Importer {
 	 * @return WP_REST_Response
 	 */
 	public function import_widgets( WP_REST_Request $request ) {
-		$params  = $request->get_body_params();
+		$params  = $request->get_json_params();
 		$widgets = $params['data'];
 		if ( empty( $widgets ) || ! is_array( $widgets ) ) {
 			return new WP_REST_Response(

@@ -54,8 +54,8 @@ class Content_Importer {
 
 		do_action( 'themeisle_ob_before_xml_import' );
 
-		$params = $request->get_body_params();
-		$body = $params[ 'data' ];
+		$body = $request->get_json_params();
+
 		$content_file_url = $body[ 'contentFile' ];
 		$page_builder = isset( $body[ 'editor' ] ) ? $body[ 'editor' ] : '';
 
@@ -264,6 +264,15 @@ class Content_Importer {
 
 		require_once 'helpers/Importer_Alterator.php';
 		$alterator = new Importer_Alterator( $req_body );
+		$importer = new WP_Import( $builder );
+
+		return $importer->import( $file_path );
+	}
+
+	/**
+	 * Load the importer.
+	 */
+	private function load_importer() {
 
 
 		if ( ! class_exists( '\WP_Importer' ) ) {
@@ -276,15 +285,6 @@ class Content_Importer {
 			return new WP_Error( 'WP_Importer Core class doesn\'t exist.' );
 		}
 
-		$importer = new WP_Import( $builder );
-
-		return $importer->import( $file_path );
-	}
-
-	/**
-	 * Load the importer.
-	 */
-	private function load_importer() {
 		require_once dirname( __FILE__ ) . '/wp/WP_Import.php';
 		require_once dirname( __FILE__ ) . '/wp/parsers.php';
 	}

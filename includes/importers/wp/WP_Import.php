@@ -44,7 +44,7 @@ class WP_Import extends WP_Importer {
 	public $page_builder         = null;
 
 	/**
-	 * Themeisle_OB_WP_Import constructor.
+	 * WP_Import constructor.
 	 *
 	 * @param string $page_builder the page builder used.
 	 */
@@ -509,8 +509,8 @@ class WP_Import extends WP_Importer {
 						}
 						if ( $key === '_elementor_data' ) {
 							$this->logger->log( 'Filtering elementor meta...', 'progress' );
-							require_once 'class-themeisle-ob-elementor-meta-handler.php';
-							$meta_handler = new Themeisle_OB_Elementor_Meta_Handler( $value, $this->base_blog_url );
+							require_once 'Elementor_Meta_Handler.php';
+							$meta_handler = new Elementor_Meta_Handler( $value, $this->base_blog_url );
 							$meta_handler->filter_meta();
 							$this->logger->log( 'Filtered elementor meta.', 'success' );
 						}
@@ -848,7 +848,7 @@ class WP_Import extends WP_Importer {
 	 */
 	private function parse( $file ) {
 		$this->logger->log( 'Parsing XML file.', 'success' );
-		$parser = new Themeisle_OB_WXR_Parser( $this->page_builder );
+		$parser = new WXR_Parser( $this->page_builder );
 
 		return $parser->parse( $file );
 	}

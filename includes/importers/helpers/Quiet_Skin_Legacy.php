@@ -12,7 +12,7 @@ namespace TIOB\Importers\Helpers;
 use WP_Upgrader_Skin;
 
 /**
- * Class Themeisle_OB_Quiet_Skin_Legacy
+ * Class Quiet_Skin_Legacy
  *
  * Silences plugin install and activate.
  */

@@ -32,7 +32,7 @@ if ( ! class_exists( '\TIOB\Importers\Helpers\Logger' ) ) {
 	require_once dirname( __FILE__ ) . '/includes/importers/helpers/Logger.php';
 }
 
-if ( class_exists( '\TIOB\WP_CLI' ) && ! class_exists( 'Themeisle_OB_WP_Cli' ) ) {
+if ( class_exists( 'WP_CLI' ) && ! class_exists( '\TIOB\WP_CLI' ) ) {
 	require_once 'includes/WP_Cli.php';
 }
 
