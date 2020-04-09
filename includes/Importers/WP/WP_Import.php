@@ -6,7 +6,7 @@
 namespace TIOB\Importers\WP;
 
 use TIOB\Importers\Helpers\Helper;
-use TIOB\Importers\Helpers\Logger;
+use TIOB\Logger;
 use WP_Importer;
 
 /**
@@ -509,7 +509,6 @@ class WP_Import extends WP_Importer {
 						}
 						if ( $key === '_elementor_data' ) {
 							$this->logger->log( 'Filtering elementor meta...', 'progress' );
-							require_once 'Elementor_Meta_Handler.php';
 							$meta_handler = new Elementor_Meta_Handler( $value, $this->base_blog_url );
 							$meta_handler->filter_meta();
 							$this->logger->log( 'Filtered elementor meta.', 'success' );

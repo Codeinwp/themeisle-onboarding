@@ -9,7 +9,7 @@ namespace TIOB\Importers;
 
 use TIOB\Importers\Helpers\Helper;
 use TIOB\Importers\Helpers\Importer_Alterator;
-use TIOB\Importers\Helpers\Logger;
+use TIOB\Logger;
 use TIOB\Importers\WP\WP_Import;
 use WP_Error;
 use WP_REST_Request;
@@ -262,7 +262,6 @@ class Content_Importer {
 			return new WP_Error( 'ti__ob_content_err_1', 'No content file' );
 		}
 
-		require_once 'helpers/Importer_Alterator.php';
 		$alterator = new Importer_Alterator( $req_body );
 		$importer = new WP_Import( $builder );
 
@@ -273,20 +272,13 @@ class Content_Importer {
 	 * Load the importer.
 	 */
 	private function load_importer() {
-
-
 		if ( ! class_exists( '\WP_Importer' ) ) {
 			$class_wp_importer = ABSPATH . 'wp-admin/includes/class-wp-importer.php';
 			if ( file_exists( $class_wp_importer ) && is_readable( $class_wp_importer ) ) {
 				require $class_wp_importer;
+				return false;
 			}
-		}
-		if ( ! class_exists( '\WP_Importer' ) ) {
 			return new WP_Error( 'WP_Importer Core class doesn\'t exist.' );
 		}
-
-		require_once dirname( __FILE__ ) . '/wp/WP_Import.php';
-		require_once dirname( __FILE__ ) . '/wp/parsers.php';
 	}
-
 }

@@ -10,7 +10,7 @@ namespace TIOB\Importers;
 use Plugin_Upgrader;
 use TIOB\Importers\Helpers\Quiet_Skin;
 use TIOB\Importers\Helpers\Quiet_Skin_Legacy;
-use TIOB\Importers\Helpers\Logger;
+use TIOB\Logger;
 use WP_REST_Request;
 use WP_REST_Response;
 
@@ -178,14 +178,12 @@ class Plugin_Importer {
 		);
 
 		if ( version_compare( PHP_VERSION, '5.6' ) === -1 ) {
-			require_once 'helpers/Quiet_Skin_Legacy.php';
 			$skin = new Quiet_Skin_Legacy(
 				[
 					'api' => $api,
 				]
 			);
 		} else {
-			require_once 'helpers/Quiet_Skin.php';
 			$skin = new Quiet_Skin(
 				array(
 					'api' => $api,

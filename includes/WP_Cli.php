@@ -78,12 +78,6 @@ class WP_Cli {
 	 * Setup class props.
 	 */
 	private function setup_props() {
-		require_once 'importers/helpers/Helper.php';
-		require_once 'importers/Content_Importer.php';
-		require_once 'importers/Theme_Mods_Importer.php';
-		require_once 'importers/Widgets_Importer.php';
-		require_once 'importers/Plugin_Importer.php';
-
 		$theme_support = get_theme_support( 'themeisle-demo-import' );
 		$this->data = $theme_support[ 0 ];
 		$this->theme_mods_importer = new Theme_Mods_Importer();

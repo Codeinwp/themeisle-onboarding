@@ -23,17 +23,32 @@ class Rest_Server {
 	/**
 	 * Front Page Id
 	 *
-	 * @var
+	 * @var int
 	 */
 	private $frontpage_id;
-
 
 	/**
 	 * The theme support contents.
 	 *
-	 * @var
+	 * @var array
 	 */
 	private $theme_support = array();
+	/**
+	 * @var Plugin_Importer
+	 */
+	private $plugin_importer;
+	/**
+	 * @var Content_Importer
+	 */
+	private $content_importer;
+	/**
+	 * @var Theme_Mods_Importer
+	 */
+	private $customizer_importer;
+	/**
+	 * @var Widgets_Importer
+	 */
+	private $widgets_importer;
 
 	/**
 	 * The array that passes all template data to the app.
@@ -46,6 +61,10 @@ class Rest_Server {
 	 * Initialize the rest functionality.
 	 */
 	public function init() {
+		$this->content_importer = new Content_Importer();
+		$this->plugin_importer = new Plugin_Importer();
+		$this->customizer_importer = new Theme_Mods_Importer();
+		$this->widgets_importer = new Widgets_Importer();
 		$this->setup_props();
 		add_action( 'rest_api_init', array( $this, 'register_endpoints' ) );
 	}
@@ -56,11 +75,11 @@ class Rest_Server {
 	public function setup_props() {
 		$theme_support = get_theme_support( 'themeisle-demo-import' );
 
-		if ( empty( $theme_support[0] ) || ! is_array( $theme_support[0] ) ) {
+		if ( empty( $theme_support[ 0 ] ) || ! is_array( $theme_support[ 0 ] ) ) {
 			return;
 		}
 
-		$this->theme_support = $theme_support[0];
+		$this->theme_support = $theme_support[ 0 ];
 	}
 
 	/**
@@ -161,15 +180,15 @@ class Rest_Server {
 			);
 		}
 
-		$this->data['i18n']             = isset( $this->theme_support['i18n'] ) ? $this->theme_support['i18n'] : array();
-		$this->data['editors']          = isset( $this->theme_support['editors'] ) ? $this->theme_support['editors'] : array();
-		$this->data['pro_link']         = isset( $this->theme_support['pro_link'] ) ? $this->theme_support['pro_link'] : '';
-		$this->data['default_template'] = $this->get_default_template();
-		$this->data['migrate_data']     = $this->get_migrateable();
-		$this->data['local']            = $this->get_local_templates();
-		$this->data['remote']           = $this->get_remote_templates();
-		$this->data['upsell']           = $this->get_upsell_templates();
-		$this->data['listing_demo']     = $this->get_listing_demo();
+		$this->data[ 'i18n' ] = isset( $this->theme_support[ 'i18n' ] ) ? $this->theme_support[ 'i18n' ] : array();
+		$this->data[ 'editors' ] = isset( $this->theme_support[ 'editors' ] ) ? $this->theme_support[ 'editors' ] : array();
+		$this->data[ 'pro_link' ] = isset( $this->theme_support[ 'pro_link' ] ) ? $this->theme_support[ 'pro_link' ] : '';
+		$this->data[ 'default_template' ] = $this->get_default_template();
+		$this->data[ 'migrate_data' ] = $this->get_migrateable();
+		$this->data[ 'local' ] = $this->get_local_templates();
+		$this->data[ 'remote' ] = $this->get_remote_templates();
+		$this->data[ 'upsell' ] = $this->get_upsell_templates();
+		$this->data[ 'listing_demo' ] = $this->get_listing_demo();
 
 		return new WP_REST_Response(
 			array(
@@ -191,14 +210,14 @@ class Rest_Server {
 
 		$data = array();
 
-		foreach ( $this->data['local'] as $editor_slug => $editor_data ) {
+		foreach ( $this->data[ 'local' ] as $editor_slug => $editor_data ) {
 			if ( ! array_key_exists( TI_ONBOARDING_ACTIVE_SITE, $editor_data ) ) {
 				continue;
 			}
 
 			$data[ $editor_slug ] = $editor_data[ TI_ONBOARDING_ACTIVE_SITE ];
 
-			unset( $this->data['local'][ $editor_slug ][ TI_ONBOARDING_ACTIVE_SITE ] );
+			unset( $this->data[ 'local' ][ $editor_slug ][ TI_ONBOARDING_ACTIVE_SITE ] );
 		}
 
 		return $data;
@@ -210,14 +229,14 @@ class Rest_Server {
 	 * @return array
 	 */
 	private function get_default_template() {
-		if ( ! isset( $this->theme_support['default_template'] ) ) {
+		if ( ! isset( $this->theme_support[ 'default_template' ] ) ) {
 			return array();
 		}
 
 		return array(
-			'screenshot' => $this->theme_support['default_template']['screenshot'],
-			'name'       => $this->theme_support['default_template']['name'],
-			'editor'     => $this->theme_support['default_template']['editor'],
+			'screenshot' => $this->theme_support[ 'default_template' ][ 'screenshot' ],
+			'name'       => $this->theme_support[ 'default_template' ][ 'name' ],
+			'editor'     => $this->theme_support[ 'default_template' ][ 'editor' ],
 		);
 	}
 
@@ -230,26 +249,26 @@ class Rest_Server {
 	 */
 	private function get_migrateable() {
 
-		if ( ! isset( $this->theme_support['can_migrate'] ) ) {
+		if ( ! isset( $this->theme_support[ 'can_migrate' ] ) ) {
 			return array();
 		}
 
-		$data = $this->theme_support['can_migrate'];
+		$data = $this->theme_support[ 'can_migrate' ];
 
-		$old_theme           = get_theme_mod( 'ti_prev_theme', 'ti_onboarding_undefined' );
-		$folder_name         = $old_theme;
+		$old_theme = get_theme_mod( 'ti_prev_theme', 'ti_onboarding_undefined' );
+		$folder_name = $old_theme;
 		$previous_theme_slug = $this->get_parent_theme( $old_theme );
 
 		if ( ! empty( $previous_theme_slug ) ) {
 			$folder_name = $previous_theme_slug;
-			$old_theme   = $previous_theme_slug;
+			$old_theme = $previous_theme_slug;
 		}
 
 		if ( ! array_key_exists( $old_theme, $data ) ) {
 			return array();
 		}
 
-		$content_imported = get_theme_mod( $data[ $old_theme ]['theme_mod_check'], 'not-imported' );
+		$content_imported = get_theme_mod( $data[ $old_theme ][ 'theme_mod_check' ], 'not-imported' );
 		if ( $content_imported === 'yes' ) {
 			return array();
 		}
@@ -259,19 +278,19 @@ class Rest_Server {
 		}
 
 		$options = array(
-			'theme_name'          => ! empty( $data[ $old_theme ]['theme_name'] ) ? esc_html( $data[ $old_theme ]['theme_name'] ) : '',
-			'screenshot'          => get_template_directory_uri() . Main::OBOARDING_PATH . '/migration/' . $folder_name . '/' . $data[ $old_theme ]['template'] . '.png',
-			'template'            => get_template_directory() . Main::OBOARDING_PATH . '/migration/' . $folder_name . '/' . $data[ $old_theme ]['template'] . '.json',
-			'template_name'       => $data[ $old_theme ]['template'],
-			'heading'             => $data[ $old_theme ]['heading'],
-			'description'         => $data[ $old_theme ]['description'],
-			'theme_mod'           => $data[ $old_theme ]['theme_mod_check'],
-			'mandatory_plugins'   => $data[ $old_theme ]['mandatory_plugins'] ? $data[ $old_theme ]['mandatory_plugins'] : array(),
-			'recommended_plugins' => $data[ $old_theme ]['recommended_plugins'] ? $data[ $old_theme ]['recommended_plugins'] : array(),
+			'theme_name'          => ! empty( $data[ $old_theme ][ 'theme_name' ] ) ? esc_html( $data[ $old_theme ][ 'theme_name' ] ) : '',
+			'screenshot'          => get_template_directory_uri() . Main::OBOARDING_PATH . '/migration/' . $folder_name . '/' . $data[ $old_theme ][ 'template' ] . '.png',
+			'template'            => get_template_directory() . Main::OBOARDING_PATH . '/migration/' . $folder_name . '/' . $data[ $old_theme ][ 'template' ] . '.json',
+			'template_name'       => $data[ $old_theme ][ 'template' ],
+			'heading'             => $data[ $old_theme ][ 'heading' ],
+			'description'         => $data[ $old_theme ][ 'description' ],
+			'theme_mod'           => $data[ $old_theme ][ 'theme_mod_check' ],
+			'mandatory_plugins'   => $data[ $old_theme ][ 'mandatory_plugins' ] ? $data[ $old_theme ][ 'mandatory_plugins' ] : array(),
+			'recommended_plugins' => $data[ $old_theme ][ 'recommended_plugins' ] ? $data[ $old_theme ][ 'recommended_plugins' ] : array(),
 		);
 
 		if ( ! empty( $previous_theme_slug ) ) {
-			$options['description'] = __( 'Hi! We\'ve noticed you were using a child theme of Zelle before. To make your transition easier, we can help you keep the same homepage settings you had before but in original Zelle\'s style, by converting it into an Elementor template.', 'textdomain' );
+			$options[ 'description' ] = __( 'Hi! We\'ve noticed you were using a child theme of Zelle before. To make your transition easier, we can help you keep the same homepage settings you had before but in original Zelle\'s style, by converting it into an Elementor template.', 'textdomain' );
 		}
 
 		return $options;
@@ -301,27 +320,27 @@ class Rest_Server {
 	 */
 	private function get_local_templates() {
 		$returnable = array();
-		if ( ! isset( $this->theme_support['local'] ) ) {
+		if ( ! isset( $this->theme_support[ 'local' ] ) ) {
 			return $returnable;
 		}
-		$cache_key   = sprintf( '_%s_templates_local', md5( serialize( $this->theme_support['local'] ) ) );
+		$cache_key = sprintf( '_%s_templates_local', md5( serialize( $this->theme_support[ 'local' ] ) ) );
 		$cached_data = get_transient( $cache_key );
 
 		if ( false !== $cached_data ) {
 			return $cached_data;
 		}
 
-		require_once( ABSPATH . '/wp-admin/includes/file.php' );
+		require_once(ABSPATH . '/wp-admin/includes/file.php');
 
 		global $wp_filesystem;
 
-		foreach ( $this->theme_support['editors'] as $editor ) {
+		foreach ( $this->theme_support[ 'editors' ] as $editor ) {
 
-			if ( ! isset( $this->theme_support['local'][ $editor ] ) ) {
+			if ( ! isset( $this->theme_support[ 'local' ][ $editor ] ) ) {
 				continue;
 			}
 
-			foreach ( $this->theme_support['local'][ $editor ] as $template_slug => $template_data ) {
+			foreach ( $this->theme_support[ 'local' ][ $editor ] as $template_slug => $template_data ) {
 				$json_path = get_template_directory() . '/onboarding/' . $template_slug . '/data.json';
 
 				if ( ! file_exists( $json_path ) || ! is_readable( $json_path ) ) {
@@ -331,13 +350,13 @@ class Rest_Server {
 				WP_Filesystem();
 				$json = $wp_filesystem->get_contents( $json_path );
 
-				$returnable[ $editor ][ $template_slug ]                          = json_decode( $json, true );
-				$returnable[ $editor ][ $template_slug ]['title']                 = esc_html( $template_data['title'] );
-				$returnable[ $editor ][ $template_slug ]['demo_url']              = esc_url( $template_data['url'] );
-				$returnable[ $editor ][ $template_slug ]['content_file']          = get_template_directory() . '/onboarding/' . $template_slug . '/export.xml';
-				$returnable[ $editor ][ $template_slug ]['source']                = 'local';
-				$returnable[ $editor ][ $template_slug ]['edit_content_redirect'] = '';
-				$returnable[ $editor ][ $template_slug ]['unsplash_gallery']      = isset( $this->theme_support['local'][ $editor ][ $template_slug ]['unsplash_gallery'] ) ? $this->theme_support['local'][ $editor ][ $template_slug ]['unsplash_gallery'] : '';
+				$returnable[ $editor ][ $template_slug ] = json_decode( $json, true );
+				$returnable[ $editor ][ $template_slug ][ 'title' ] = esc_html( $template_data[ 'title' ] );
+				$returnable[ $editor ][ $template_slug ][ 'demo_url' ] = esc_url( $template_data[ 'url' ] );
+				$returnable[ $editor ][ $template_slug ][ 'content_file' ] = get_template_directory() . '/onboarding/' . $template_slug . '/export.xml';
+				$returnable[ $editor ][ $template_slug ][ 'source' ] = 'local';
+				$returnable[ $editor ][ $template_slug ][ 'edit_content_redirect' ] = '';
+				$returnable[ $editor ][ $template_slug ][ 'unsplash_gallery' ] = isset( $this->theme_support[ 'local' ][ $editor ][ $template_slug ][ 'unsplash_gallery' ] ) ? $this->theme_support[ 'local' ][ $editor ][ $template_slug ][ 'unsplash_gallery' ] : '';
 
 				$ss_extension = '.png';
 				if ( file_exists( get_template_directory() . '/onboarding/' . $template_slug . '/screenshot.jpg' ) ) {
@@ -346,19 +365,19 @@ class Rest_Server {
 
 				$ss_src = get_template_directory_uri() . '/onboarding/' . $template_slug . '/screenshot' . $ss_extension;
 
-				if ( isset( $this->theme_support['local'][ $editor ][ $template_slug ]['screenshot'] ) ) {
-					$ss_src = $this->theme_support['local'][ $editor ][ $template_slug ]['screenshot'];
+				if ( isset( $this->theme_support[ 'local' ][ $editor ][ $template_slug ][ 'screenshot' ] ) ) {
+					$ss_src = $this->theme_support[ 'local' ][ $editor ][ $template_slug ][ 'screenshot' ];
 				}
 
-				$returnable[ $editor ][ $template_slug ]['screenshot'] = esc_url( $ss_src );
+				$returnable[ $editor ][ $template_slug ][ 'screenshot' ] = esc_url( $ss_src );
 
-				if ( isset( $template_data['edit_content_redirect'] ) ) {
-					$returnable[ $editor ][ $template_slug ]['edit_content_redirect'] = esc_html( $template_data['edit_content_redirect'] );
+				if ( isset( $template_data[ 'edit_content_redirect' ] ) ) {
+					$returnable[ $editor ][ $template_slug ][ 'edit_content_redirect' ] = esc_html( $template_data[ 'edit_content_redirect' ] );
 				}
 
-				if ( isset( $template_data['external_plugins'] ) ) {
-					foreach ( $template_data['external_plugins'] as $plugin ) {
-						$returnable[ $editor ][ $template_slug ]['external_plugins'][ $plugin['name'] ] = $plugin['author_url'];
+				if ( isset( $template_data[ 'external_plugins' ] ) ) {
+					foreach ( $template_data[ 'external_plugins' ] as $plugin ) {
+						$returnable[ $editor ][ $template_slug ][ 'external_plugins' ][ $plugin[ 'name' ] ] = $plugin[ 'author_url' ];
 					}
 				}
 			}
@@ -375,38 +394,38 @@ class Rest_Server {
 	 * @return array
 	 */
 	private function get_remote_templates() {
-		if ( ! isset( $this->theme_support['remote'] ) ) {
+		if ( ! isset( $this->theme_support[ 'remote' ] ) ) {
 			return array();
 		}
-		$returnable  = array();
-		$cache_key   = sprintf( '_%s_templates_remote', md5( serialize( $this->theme_support['remote'] ) ) );
+		$returnable = array();
+		$cache_key = sprintf( '_%s_templates_remote', md5( serialize( $this->theme_support[ 'remote' ] ) ) );
 		$cached_data = get_transient( $cache_key );
 		if ( false !== $cached_data ) {
 			return $cached_data;
 		}
-		$bulk_jsons = isset( $this->theme_support['bulk_json'] ) ? $this->theme_support['bulk_json'] : false;
+		$bulk_jsons = isset( $this->theme_support[ 'bulk_json' ] ) ? $this->theme_support[ 'bulk_json' ] : false;
 		if ( $bulk_jsons !== false ) {
 			$request_bulk = wp_remote_get( $bulk_jsons );
-			$bulk_jsons   = wp_remote_retrieve_body( $request_bulk );
-			$bulk_jsons   = json_decode( $bulk_jsons, true );
+			$bulk_jsons = wp_remote_retrieve_body( $request_bulk );
+			$bulk_jsons = json_decode( $bulk_jsons, true );
 		}
 
-		foreach ( $this->theme_support['editors'] as $editor ) {
+		foreach ( $this->theme_support[ 'editors' ] as $editor ) {
 
-			if ( ! isset( $this->theme_support['remote'][ $editor ] ) ) {
+			if ( ! isset( $this->theme_support[ 'remote' ][ $editor ] ) ) {
 				continue;
 			}
 
-			foreach ( $this->theme_support['remote'][ $editor ] as $template_slug => $template_data ) {
-				if ( isset( $template_data['local_json'] ) ) {
-					require_once( ABSPATH . '/wp-admin/includes/file.php' );
+			foreach ( $this->theme_support[ 'remote' ][ $editor ] as $template_slug => $template_data ) {
+				if ( isset( $template_data[ 'local_json' ] ) ) {
+					require_once(ABSPATH . '/wp-admin/includes/file.php');
 					global $wp_filesystem;
 					WP_Filesystem();
-					$json_body = $wp_filesystem->get_contents( $template_data['local_json'] );
+					$json_body = $wp_filesystem->get_contents( $template_data[ 'local_json' ] );
 					$json_body = json_decode( $json_body, true );
 				} else {
-					$remote_url = ( isset( $template_data['remote_json'] ) ? $template_data['remote_json'] : $template_data['url'] );
-					$url_parts  = explode( '/', rtrim( $remote_url, '/' ) );
+					$remote_url = (isset( $template_data[ 'remote_json' ] ) ? $template_data[ 'remote_json' ] : $template_data[ 'url' ]);
+					$url_parts = explode( '/', rtrim( $remote_url, '/' ) );
 
 					$slug = '/' . $url_parts[ count( $url_parts ) - 1 ] . '/';
 					if ( ! is_array( $bulk_jsons ) || ! isset( $bulk_jsons[ $slug ] ) ) {
@@ -420,29 +439,29 @@ class Rest_Server {
 							continue;
 						}
 
-						if ( empty( $request['body'] ) || ! isset( $request['body'] ) ) {
+						if ( empty( $request[ 'body' ] ) || ! isset( $request[ 'body' ] ) ) {
 							continue;
 						}
 
-						$json_body = $request['body'];
+						$json_body = $request[ 'body' ];
 						$json_body = json_decode( $json_body, true );
 					} else {
 						$json_body = $bulk_jsons[ $slug ];
 					}
 				}
-				$returnable[ $editor ][ $template_slug ]                     = $json_body;
-				$returnable[ $editor ][ $template_slug ]['title']            = esc_html( $template_data['title'] );
-				$returnable[ $editor ][ $template_slug ]['demo_url']         = esc_url( $template_data['url'] );
-				$returnable[ $editor ][ $template_slug ]['screenshot']       = esc_url( $template_data['screenshot'] );
-				$returnable[ $editor ][ $template_slug ]['source']           = 'remote';
-				$returnable[ $editor ][ $template_slug ]['unsplash_gallery'] = isset( $this->theme_support['remote'][ $editor ][ $template_slug ]['unsplash_gallery'] ) ? $this->theme_support['remote'][ $editor ][ $template_slug ]['unsplash_gallery'] : '';
+				$returnable[ $editor ][ $template_slug ] = $json_body;
+				$returnable[ $editor ][ $template_slug ][ 'title' ] = esc_html( $template_data[ 'title' ] );
+				$returnable[ $editor ][ $template_slug ][ 'demo_url' ] = esc_url( $template_data[ 'url' ] );
+				$returnable[ $editor ][ $template_slug ][ 'screenshot' ] = esc_url( $template_data[ 'screenshot' ] );
+				$returnable[ $editor ][ $template_slug ][ 'source' ] = 'remote';
+				$returnable[ $editor ][ $template_slug ][ 'unsplash_gallery' ] = isset( $this->theme_support[ 'remote' ][ $editor ][ $template_slug ][ 'unsplash_gallery' ] ) ? $this->theme_support[ 'remote' ][ $editor ][ $template_slug ][ 'unsplash_gallery' ] : '';
 
-				if ( isset( $template_data['external_plugins'] ) ) {
-					foreach ( $template_data['external_plugins'] as $plugin ) {
-						if ( $plugin['active'] ) {
+				if ( isset( $template_data[ 'external_plugins' ] ) ) {
+					foreach ( $template_data[ 'external_plugins' ] as $plugin ) {
+						if ( $plugin[ 'active' ] ) {
 							continue;
 						}
-						$returnable[ $editor ][ $template_slug ]['external_plugins'][ $plugin['name'] ] = $plugin['author_url'];
+						$returnable[ $editor ][ $template_slug ][ 'external_plugins' ][ $plugin[ 'name' ] ] = $plugin[ 'author_url' ];
 					}
 				}
 			}
@@ -460,18 +479,18 @@ class Rest_Server {
 	private function get_upsell_templates() {
 		$returnable = array();
 
-		foreach ( $this->theme_support['editors'] as $editor ) {
-			if ( ! isset( $this->theme_support['upsell'][ $editor ] ) ) {
+		foreach ( $this->theme_support[ 'editors' ] as $editor ) {
+			if ( ! isset( $this->theme_support[ 'upsell' ][ $editor ] ) ) {
 				continue;
 			}
-			foreach ( $this->theme_support['upsell'][ $editor ] as $template_slug => $template_data ) {
-				$returnable[ $editor ][ $template_slug ]                  = array();
-				$returnable[ $editor ][ $template_slug ]['title']         = esc_html( $template_data['title'] );
-				$returnable[ $editor ][ $template_slug ]['demo_url']      = esc_url( $template_data['url'] );
-				$returnable[ $editor ][ $template_slug ]['screenshot']    = esc_url( $template_data['screenshot'] );
-				$returnable[ $editor ][ $template_slug ]['source']        = 'remote';
-				$returnable[ $editor ][ $template_slug ]['in_pro']        = true;
-				$returnable[ $editor ][ $template_slug ]['outbound_link'] = add_query_arg(
+			foreach ( $this->theme_support[ 'upsell' ][ $editor ] as $template_slug => $template_data ) {
+				$returnable[ $editor ][ $template_slug ] = array();
+				$returnable[ $editor ][ $template_slug ][ 'title' ] = esc_html( $template_data[ 'title' ] );
+				$returnable[ $editor ][ $template_slug ][ 'demo_url' ] = esc_url( $template_data[ 'url' ] );
+				$returnable[ $editor ][ $template_slug ][ 'screenshot' ] = esc_url( $template_data[ 'screenshot' ] );
+				$returnable[ $editor ][ $template_slug ][ 'source' ] = 'remote';
+				$returnable[ $editor ][ $template_slug ][ 'in_pro' ] = true;
+				$returnable[ $editor ][ $template_slug ][ 'outbound_link' ] = add_query_arg(
 					apply_filters(
 						'ti_onboarding_outbound_query_args',
 						array(
@@ -480,7 +499,7 @@ class Rest_Server {
 							'utm_campaign' => 'siteslibrary',
 						)
 					),
-					$this->theme_support['pro_link']
+					$this->theme_support[ 'pro_link' ]
 				);
 			}
 		}
@@ -496,17 +515,7 @@ class Rest_Server {
 	 * @return WP_REST_Response
 	 */
 	public function run_plugin_importer( WP_REST_Request $request ) {
-		require_once 'importers/Plugin_Importer.php';
-		if ( ! class_exists( '\TIOB\Importers\Plugin_Importer' ) ) {
-			return new WP_REST_Response(
-				array(
-					'data'    => 'ti__ob_rest_err_1',
-					'success' => false,
-				)
-			);
-		}
-		$plugin_importer = new Plugin_Importer();
-		return $plugin_importer->install_plugins( $request );
+		return $this->plugin_importer->install_plugins( $request );
 	}
 
 	/**
@@ -517,17 +526,7 @@ class Rest_Server {
 	 * @return WP_REST_Response
 	 */
 	public function run_xml_importer( WP_REST_Request $request ) {
-		require_once 'importers/Content_Importer.php';
-		if ( ! class_exists( '\TIOB\Importers\Content_Importer' ) ) {
-			return new WP_REST_Response(
-				array(
-					'data'    => 'ti__ob_rest_err_2',
-					'success' => false,
-				)
-			);
-		}
-		$content_importer = new Content_Importer();
-		return $content_importer->import_remote_xml( $request );
+		return $this->content_importer->import_remote_xml( $request );
 	}
 
 	/**
@@ -538,19 +537,7 @@ class Rest_Server {
 	 * @return WP_REST_Response
 	 */
 	public function run_theme_mods_importer( WP_REST_Request $request ) {
-		require_once 'importers/Theme_Mods_Importer.php';
-
-		if ( ! class_exists( '\TIOB\Importers\Theme_Mods_Importer' ) ) {
-			return new WP_REST_Response(
-				array(
-					'data'    => 'ti__ob_rest_err_3',
-					'success' => false,
-				)
-			);
-		}
-		$theme_mods_importer = new Theme_Mods_Importer();
-
-		return $theme_mods_importer->import_theme_mods( $request );
+		return $this->customizer_importer->import_theme_mods( $request );
 	}
 
 	/**
@@ -561,17 +548,7 @@ class Rest_Server {
 	 * @return WP_REST_Response
 	 */
 	public function run_widgets_importer( WP_REST_Request $request ) {
-		require_once 'importers/Widgets_Importer.php';
-		if ( ! class_exists( '\TIOB\Importers\Widgets_Importer' ) ) {
-			return new WP_REST_Response(
-				array(
-					'data'    => 'ti__ob_rest_err_4',
-					'success' => false,
-				)
-			);
-		}
-		$theme_mods_importer = new Widgets_Importer();
-		$import              = $theme_mods_importer->import_widgets( $request );
+		$import = $this->widgets_importer->import_widgets( $request );
 
 		set_theme_mod( 'ti_content_imported', 'yes' );
 
@@ -588,7 +565,7 @@ class Rest_Server {
 	public function run_front_page_migration( WP_REST_Request $request ) {
 
 		$params = $request->get_body_params();
-		if ( ! isset( $params['template'] ) ) {
+		if ( ! isset( $params[ 'template' ] ) ) {
 			return new WP_REST_Response(
 				array(
 					'data'    => 'ti__ob_rest_err_5',
@@ -596,7 +573,7 @@ class Rest_Server {
 				)
 			);
 		}
-		if ( ! isset( $params['template_name'] ) ) {
+		if ( ! isset( $params[ 'template_name' ] ) ) {
 			return new WP_REST_Response(
 				array(
 					'data'    => 'ti__ob_rest_err_6',
@@ -604,8 +581,8 @@ class Rest_Server {
 				)
 			);
 		}
-		require_once 'importers/class-themeisle-ob-' . $params['template_name'] . '-importer.php';
-		$class_name = 'Themeisle_OB_' . ucfirst( $params['template_name'] ) . '_Importer';
+		require_once 'importers/class-themeisle-ob-' . $params[ 'template_name' ] . '-importer.php';
+		$class_name = 'Themeisle_OB_' . ucfirst( $params[ 'template_name' ] ) . '_Importer';
 		if ( ! class_exists( $class_name ) ) {
 			return new WP_REST_Response(
 				array(
@@ -614,9 +591,9 @@ class Rest_Server {
 				)
 			);
 		}
-		$migrator  = new $class_name;
+		$migrator = new $class_name;
 		$old_theme = get_theme_mod( 'ti_prev_theme', 'ti_onboarding_undefined' );
-		$import    = $migrator->import_zelle_frontpage( $params['template'], $old_theme );
+		$import = $migrator->import_zelle_frontpage( $params[ 'template' ], $old_theme );
 
 		if ( is_wp_error( $import ) ) {
 			return new WP_REST_Response(
@@ -644,7 +621,7 @@ class Rest_Server {
 	 */
 	public function dismiss_migration( WP_REST_Request $request ) {
 		$params = $request->get_json_params();
-		if ( ! isset( $params['theme_mod'] ) ) {
+		if ( ! isset( $params[ 'theme_mod' ] ) ) {
 			return new WP_REST_Response(
 				array(
 					'data'    => 'ti__ob_rest_err_8',
@@ -652,7 +629,7 @@ class Rest_Server {
 				)
 			);
 		}
-		set_theme_mod( $params['theme_mod'], 'yes' );
+		set_theme_mod( $params[ 'theme_mod' ], 'yes' );
 
 		return new WP_REST_Response( array( 'success' => true ) );
 	}

@@ -7,8 +7,6 @@
 
 namespace TIOB;
 
-use TIOB\Importers\Helpers\Logger;
-
 /**
  * Class Admin
  *

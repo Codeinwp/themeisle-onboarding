@@ -5,16 +5,14 @@
  *
  * @package themeisle-onboarding
  */
-
 if ( ! defined( 'TI_ONBOARDING_DISABLED' ) ) {
 	define( 'TI_ONBOARDING_DISABLED', false );
 }
-
 if ( TI_ONBOARDING_DISABLED === true ) {
 	add_filter(
 		'ti_about_config_filter',
 		function ( $config ) {
-			unset( $config['welcome_notice'] );
+			unset( $config[ 'welcome_notice' ] );
 
 			return $config;
 		}
@@ -23,16 +21,9 @@ if ( TI_ONBOARDING_DISABLED === true ) {
 	return false;
 }
 
+require_once __DIR__ . '/vendor/autoload.php';
 
-if ( ! class_exists( '\TIOB\Main' ) ) {
-	require_once dirname( __FILE__ ) . '/includes/Main.php';
-}
-
-if ( ! class_exists( '\TIOB\Importers\Helpers\Logger' ) ) {
-	require_once dirname( __FILE__ ) . '/includes/importers/helpers/Logger.php';
-}
-
-if ( class_exists( 'WP_CLI' ) && ! class_exists( '\TIOB\WP_CLI' ) ) {
+if ( class_exists( 'WP_CLI' ) ) {
 	require_once 'includes/WP_Cli.php';
 }
 

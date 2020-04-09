@@ -113,7 +113,6 @@ class Main {
 	 * @return void
 	 */
 	private function setup_admin() {
-		require_once 'Admin.php';
 		$this->admin = new Admin();
 		$this->admin->init();
 	}
@@ -121,11 +120,10 @@ class Main {
 	/**
 	 * Setup the restful functionality.
 	 *
+	 *
 	 * @return void
 	 */
 	private function setup_api() {
-		require_once 'Rest_Server.php';
-		require_once 'importers/helpers/Helper.php';
 		$api = new Rest_Server();
 		$api->init();
 	}

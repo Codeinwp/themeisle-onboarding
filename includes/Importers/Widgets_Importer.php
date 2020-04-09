@@ -27,8 +27,8 @@ class Widgets_Importer {
 	 * @return WP_REST_Response
 	 */
 	public function import_widgets( WP_REST_Request $request ) {
-		$params  = $request->get_json_params();
-		$widgets = $params['data'];
+		$widgets = $request->get_json_params();
+
 		if ( empty( $widgets ) || ! is_array( $widgets ) ) {
 			return new WP_REST_Response(
 				array(
@@ -75,7 +75,7 @@ class Widgets_Importer {
 
 		$widget_instances = array();
 		foreach ( $available_widgets as $widget_data ) {
-			$widget_instances[ $widget_data['id_base'] ] = get_option( 'widget_' . $widget_data['id_base'] );
+			$widget_instances[ $widget_data[ 'id_base' ] ] = get_option( 'widget_' . $widget_data[ 'id_base' ] );
 		}
 
 		foreach ( $data as $sidebar_id => $widgets ) {
@@ -85,10 +85,10 @@ class Widgets_Importer {
 
 			if ( isset( $wp_registered_sidebars[ $sidebar_id ] ) ) {
 				$sidebar_available = true;
-				$use_sidebar_id    = $sidebar_id;
+				$use_sidebar_id = $sidebar_id;
 			} else {
 				$sidebar_available = false;
-				$use_sidebar_id    = 'wp_inactive_widgets'; // Add to inactive if sidebar does not exist in theme.
+				$use_sidebar_id = 'wp_inactive_widgets'; // Add to inactive if sidebar does not exist in theme.
 			}
 
 			// Loop widgets.
@@ -97,7 +97,7 @@ class Widgets_Importer {
 				$fail = false;
 
 				// Get id_base (remove -# from end) and instance ID number.
-				$id_base            = preg_replace( '/-[0-9]+$/', '', $widget_instance_id );
+				$id_base = preg_replace( '/-[0-9]+$/', '', $widget_instance_id );
 				$instance_id_number = str_replace( $id_base . '-', '', $widget_instance_id );
 
 				// Does site support this widget?
@@ -113,7 +113,7 @@ class Widgets_Importer {
 
 					// Get existing widgets in this sidebar.
 					$sidebars_widgets = get_option( 'sidebars_widgets' );
-					$sidebar_widgets  = isset( $sidebars_widgets[ $use_sidebar_id ] ) ? $sidebars_widgets[ $use_sidebar_id ] : array(); // Check Inactive if that's where will go.
+					$sidebar_widgets = isset( $sidebars_widgets[ $use_sidebar_id ] ) ? $sidebars_widgets[ $use_sidebar_id ] : array(); // Check Inactive if that's where will go.
 
 					// Loop widgets with ID base.
 					$single_widget_instances = ! empty( $widget_instances[ $id_base ] ) ? $widget_instances[ $id_base ] : array();
@@ -132,8 +132,8 @@ class Widgets_Importer {
 				if ( ! $fail ) {
 
 					// Add widget instance
-					$single_widget_instances   = get_option( 'widget_' . $id_base ); // All instances for that widget ID base, get fresh every time.
-					$single_widget_instances   = ! empty( $single_widget_instances ) ? $single_widget_instances : array(
+					$single_widget_instances = get_option( 'widget_' . $id_base ); // All instances for that widget ID base, get fresh every time.
+					$single_widget_instances = ! empty( $single_widget_instances ) ? $single_widget_instances : array(
 						'_multiwidget' => 1, // Start fresh if have to.
 					);
 					$single_widget_instances[] = $widget; // Add it.
@@ -146,16 +146,16 @@ class Widgets_Importer {
 					// When 0, an issue can occur where adding a widget causes data from other widget to load,
 					// and the widget doesn't stick (reload wipes it).
 					if ( '0' === strval( $new_instance_id_number ) ) {
-						$new_instance_id_number                             = 1;
-						$single_widget_instances[ $new_instance_id_number ] = $single_widget_instances[0];
-						unset( $single_widget_instances[0] );
+						$new_instance_id_number = 1;
+						$single_widget_instances[ $new_instance_id_number ] = $single_widget_instances[ 0 ];
+						unset( $single_widget_instances[ 0 ] );
 					}
 
 					// Move _multiwidget to end of array for uniformity.
-					if ( isset( $single_widget_instances['_multiwidget'] ) ) {
-						$multiwidget = $single_widget_instances['_multiwidget'];
-						unset( $single_widget_instances['_multiwidget'] );
-						$single_widget_instances['_multiwidget'] = $multiwidget;
+					if ( isset( $single_widget_instances[ '_multiwidget' ] ) ) {
+						$multiwidget = $single_widget_instances[ '_multiwidget' ];
+						unset( $single_widget_instances[ '_multiwidget' ] );
+						$single_widget_instances[ '_multiwidget' ] = $multiwidget;
 					}
 
 					// Update option with new widget.
@@ -203,9 +203,9 @@ class Widgets_Importer {
 	 * Gather site's widgets into array with ID base, name, etc.
 	 * Used by export and import functions.
 	 *
-	 * @since 0.4
-	 * @global array $wp_registered_widget_updates
 	 * @return array Widget information
+	 * @global array $wp_registered_widget_updates
+	 * @since 0.4
 	 */
 	public function available_widgets() {
 
@@ -218,9 +218,9 @@ class Widgets_Importer {
 		foreach ( $widget_controls as $widget ) {
 
 			// No duplicates.
-			if ( ! empty( $widget['id_base'] ) && ! isset( $available_widgets[ $widget['id_base'] ] ) ) {
-				$available_widgets[ $widget['id_base'] ]['id_base'] = $widget['id_base'];
-				$available_widgets[ $widget['id_base'] ]['name']    = $widget['name'];
+			if ( ! empty( $widget[ 'id_base' ] ) && ! isset( $available_widgets[ $widget[ 'id_base' ] ] ) ) {
+				$available_widgets[ $widget[ 'id_base' ] ][ 'id_base' ] = $widget[ 'id_base' ];
+				$available_widgets[ $widget[ 'id_base' ] ][ 'name' ] = $widget[ 'name' ];
 			}
 		}
 
