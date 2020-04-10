@@ -7,6 +7,7 @@ namespace TIOB\Importers\WP;
 
 use TIOB\Importers\Helpers\Helper;
 use TIOB\Logger;
+use WP_Error;
 use WP_Importer;
 
 /**
