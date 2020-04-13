@@ -11,6 +11,7 @@ use TIOB\Importers\Content_Importer;
 use TIOB\Importers\Plugin_Importer;
 use TIOB\Importers\Theme_Mods_Importer;
 use TIOB\Importers\Widgets_Importer;
+use TIOB\Importers\Zelle_Importer;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -248,14 +249,14 @@ class Rest_Server {
 	 * @return array
 	 */
 	private function get_migrateable() {
-
 		if ( ! isset( $this->theme_support[ 'can_migrate' ] ) ) {
-			return array();
+			return null;
 		}
 
 		$data = $this->theme_support[ 'can_migrate' ];
 
 		$old_theme = get_theme_mod( 'ti_prev_theme', 'ti_onboarding_undefined' );
+
 		$folder_name = $old_theme;
 		$previous_theme_slug = $this->get_parent_theme( $old_theme );
 
@@ -265,12 +266,12 @@ class Rest_Server {
 		}
 
 		if ( ! array_key_exists( $old_theme, $data ) ) {
-			return array();
+			return null;
 		}
 
 		$content_imported = get_theme_mod( $data[ $old_theme ][ 'theme_mod_check' ], 'not-imported' );
 		if ( $content_imported === 'yes' ) {
-			return array();
+			return null;
 		}
 
 		if ( $old_theme === 'zerif-lite' || $old_theme === 'zerif-pro' ) {
@@ -563,9 +564,9 @@ class Rest_Server {
 	 * @return WP_REST_Response
 	 */
 	public function run_front_page_migration( WP_REST_Request $request ) {
+		$params = $request->get_json_params();
 
-		$params = $request->get_body_params();
-		if ( ! isset( $params[ 'template' ] ) ) {
+		if ( ! isset( $params[ 'template' ] ) || ! isset( $params['template_name'] ) ) {
 			return new WP_REST_Response(
 				array(
 					'data'    => 'ti__ob_rest_err_5',
@@ -573,25 +574,8 @@ class Rest_Server {
 				)
 			);
 		}
-		if ( ! isset( $params[ 'template_name' ] ) ) {
-			return new WP_REST_Response(
-				array(
-					'data'    => 'ti__ob_rest_err_6',
-					'success' => false,
-				)
-			);
-		}
-		require_once 'importers/class-themeisle-ob-' . $params[ 'template_name' ] . '-importer.php';
-		$class_name = 'Themeisle_OB_' . ucfirst( $params[ 'template_name' ] ) . '_Importer';
-		if ( ! class_exists( $class_name ) ) {
-			return new WP_REST_Response(
-				array(
-					'data'    => 'ti__ob_rest_err_7',
-					'success' => false,
-				)
-			);
-		}
-		$migrator = new $class_name;
+
+		$migrator = new Zelle_Importer();
 		$old_theme = get_theme_mod( 'ti_prev_theme', 'ti_onboarding_undefined' );
 		$import = $migrator->import_zelle_frontpage( $params[ 'template' ], $old_theme );
 

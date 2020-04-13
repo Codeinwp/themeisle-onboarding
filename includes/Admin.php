@@ -108,8 +108,8 @@ class Admin {
 			'root'            => esc_url_raw( rest_url( Main::API_ROOT ) ),
 			'nonce'           => wp_create_nonce( 'wp_rest' ),
 			'homeUrl'         => esc_url( home_url() ),
-			'i18ln'           => $this->get_strings(),
-			'onboarding'      => 'no',
+			'i18n'           => $this->get_strings(),
+			'onboarding'      => false,
 			'readyImport'     => '',
 			'contentImported' => $this->escape_bool_text( get_theme_mod( 'ti_content_imported', 'no' ) ),
 			'aboutUrl'        => esc_url( admin_url( 'themes.php?page=' . $theme->__get( 'stylesheet' ) . '-welcome' ) ),
@@ -129,7 +129,7 @@ class Admin {
 
 		$is_onboarding = isset( $_GET['onboarding'] ) && $_GET['onboarding'] === 'yes';
 		if ( $is_onboarding ) {
-			$api['onboarding'] = 'yes';
+			$api['onboarding'] = true;
 		}
 
 		if ( isset( $_GET['readyimport'] ) ) {

@@ -5,12 +5,16 @@
  * @package themeisle-onboarding
  */
 
+namespace TIOB\Importers;
+
+use WP_Error;
+
 /**
  * Class to import Zelle to an Elementor template.
  *
  * @package themeisle-onboarding
  */
-class Themeisle_OB_Zelle_Importer {
+class Zelle_Importer {
 
 	/**
 	 * The page template name.
