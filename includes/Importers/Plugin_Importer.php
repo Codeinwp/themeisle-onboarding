@@ -75,7 +75,6 @@ class Plugin_Importer {
 		do_action( 'themeisle_ob_before_plugins_install' );
 
 		$plugins = $request->get_json_params();
-
 		if ( empty( $plugins ) || ! is_array( $plugins ) ) {
 			return new WP_REST_Response(
 				array(

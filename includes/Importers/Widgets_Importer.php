@@ -11,6 +11,7 @@
 
 namespace TIOB\Importers;
 
+use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 
@@ -68,7 +69,7 @@ class Widgets_Importer {
 	public function actually_import( $data ) {
 		global $wp_registered_sidebars;
 		if ( empty( $data ) || ! is_array( $data ) ) {
-			return new \WP_Error( 'ti__ob_widget_err_1' );
+			return new WP_Error( 'ti__ob_widget_err_1' );
 		}
 
 		$available_widgets = $this->available_widgets();

@@ -582,7 +582,7 @@ class Rest_Server {
 		if ( is_wp_error( $import ) ) {
 			return new WP_REST_Response(
 				array(
-					'message' => 'ti__ob_zelle_err_1',
+					'data' => $import->get_error_code(),
 					'success' => false,
 				)
 			);

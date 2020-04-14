@@ -69,7 +69,7 @@ class Zelle_Importer {
 		unset( $this->content[9] );
 
 		if ( empty( $data ) ) {
-			return new WP_Error( 'ti__ob_zelle_err_1' );
+			return new WP_Error( 'ti__ob_zelle_err_3' );
 		}
 
 		$this->map_bigtitle_section();
@@ -101,7 +101,7 @@ class Zelle_Importer {
 		$el_template_post = $elementor->import_template( $this->name, $path_to_file );
 
 		if ( empty( $el_template_post ) ) {
-			return new WP_Error( 'ti__ob_zelle_err_2' );
+			return new WP_Error( 'ti__ob_zelle_err_4' );
 		}
 
 		unlink( $path_to_file );
@@ -120,7 +120,7 @@ class Zelle_Importer {
 			return $post_id;
 		}
 
-		return new WP_Error( 'ti__ob_zelle_err_3' );
+		return new WP_Error( 'ti__ob_zelle_err_5' );
 
 	}
 
