@@ -12,7 +12,7 @@ if ( TI_ONBOARDING_DISABLED === true ) {
 	add_filter(
 		'ti_about_config_filter',
 		function ( $config ) {
-			unset( $config[ 'welcome_notice' ] );
+			unset( $config['welcome_notice'] );
 
 			return $config;
 		}

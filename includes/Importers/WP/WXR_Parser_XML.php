@@ -11,7 +11,7 @@ class WXR_Parser_XML {
 	 *
 	 * @var array
 	 */
-	public $wp_tags = array(
+	public $wp_tags     = array(
 		'wp:post_id',
 		'wp:post_date',
 		'wp:post_date_gmt',
@@ -70,18 +70,18 @@ class WXR_Parser_XML {
 		global $wp_filesystem;
 		WP_Filesystem();
 		$this->wxr_version = $this->in_post = $this->cdata = $this->data = $this->sub_data = $this->in_tag = $this->in_sub_tag = false;
-		$this->authors = $this->posts = $this->term = $this->category = $this->tag = array();
-		$xml = xml_parser_create( 'UTF-8' );
+		$this->authors     = $this->posts = $this->term = $this->category = $this->tag = array();
+		$xml               = xml_parser_create( 'UTF-8' );
 		xml_parser_set_option( $xml, XML_OPTION_SKIP_WHITE, 1 );
 		xml_parser_set_option( $xml, XML_OPTION_CASE_FOLDING, 0 );
 		xml_set_object( $xml, $this );
 		xml_set_character_data_handler( $xml, 'cdata' );
 		xml_set_element_handler( $xml, 'tag_open', 'tag_close' );
 		if ( ! xml_parse( $xml, $wp_filesystem->get_contents( $file ), true ) ) {
-			$current_line = xml_get_current_line_number( $xml );
+			$current_line   = xml_get_current_line_number( $xml );
 			$current_column = xml_get_current_column_number( $xml );
-			$error_code = xml_get_error_code( $xml );
-			$error_string = xml_error_string( $error_code );
+			$error_code     = xml_get_error_code( $xml );
+			$error_string   = xml_error_string( $error_code );
 
 			return new WP_Error(
 				'XML_parse_error',
@@ -123,9 +123,9 @@ class WXR_Parser_XML {
 		}
 		switch ( $tag ) {
 			case 'category':
-				if ( isset( $attr[ 'domain' ], $attr[ 'nicename' ] ) ) {
-					$this->sub_data[ 'domain' ] = $attr[ 'domain' ];
-					$this->sub_data[ 'slug' ] = $attr[ 'nicename' ];
+				if ( isset( $attr['domain'], $attr['nicename'] ) ) {
+					$this->sub_data['domain'] = $attr['domain'];
+					$this->sub_data['slug']   = $attr['nicename'];
 				}
 				break;
 			case 'item':
@@ -174,34 +174,34 @@ class WXR_Parser_XML {
 	public function tag_close( $parser, $tag ) {
 		switch ( $tag ) {
 			case 'wp:comment':
-				unset( $this->sub_data[ 'key' ], $this->sub_data[ 'value' ] ); // remove meta sub_data
+				unset( $this->sub_data['key'], $this->sub_data['value'] ); // remove meta sub_data
 				if ( ! empty( $this->sub_data ) ) {
-					$this->data[ 'comments' ][] = $this->sub_data;
+					$this->data['comments'][] = $this->sub_data;
 				}
 				$this->sub_data = false;
 				break;
 			case 'wp:commentmeta':
-				$this->sub_data[ 'commentmeta' ][] = array(
-					'key'   => $this->sub_data[ 'key' ],
-					'value' => $this->sub_data[ 'value' ],
+				$this->sub_data['commentmeta'][] = array(
+					'key'   => $this->sub_data['key'],
+					'value' => $this->sub_data['value'],
 				);
 				break;
 			case 'category':
 				if ( ! empty( $this->sub_data ) ) {
-					$this->sub_data[ 'name' ] = $this->cdata;
-					$this->data[ 'terms' ][] = $this->sub_data;
+					$this->sub_data['name'] = $this->cdata;
+					$this->data['terms'][]  = $this->sub_data;
 				}
 				$this->sub_data = false;
 				break;
 			case 'wp:postmeta':
 				if ( ! empty( $this->sub_data ) ) {
-					$this->data[ 'postmeta' ][] = $this->sub_data;
+					$this->data['postmeta'][] = $this->sub_data;
 				}
 				$this->sub_data = false;
 				break;
 			case 'item':
 				$this->posts[] = $this->data;
-				$this->data = false;
+				$this->data    = false;
 				break;
 			case 'wp:category':
 			case 'wp:tag':
@@ -211,8 +211,8 @@ class WXR_Parser_XML {
 				$this->data = false;
 				break;
 			case 'wp:author':
-				if ( ! empty( $this->data[ 'author_login' ] ) ) {
-					$this->authors[ $this->data[ 'author_login' ] ] = $this->data;
+				if ( ! empty( $this->data['author_login'] ) ) {
+					$this->authors[ $this->data['author_login'] ] = $this->data;
 				}
 				$this->data = false;
 				break;
@@ -228,10 +228,10 @@ class WXR_Parser_XML {
 			default:
 				if ( $this->in_sub_tag ) {
 					$this->sub_data[ $this->in_sub_tag ] = ! empty( $this->cdata ) ? $this->cdata : '';
-					$this->in_sub_tag = false;
+					$this->in_sub_tag                    = false;
 				} elseif ( $this->in_tag ) {
 					$this->data[ $this->in_tag ] = ! empty( $this->cdata ) ? $this->cdata : '';
-					$this->in_tag = false;
+					$this->in_tag                = false;
 				}
 		}
 		$this->cdata = false;

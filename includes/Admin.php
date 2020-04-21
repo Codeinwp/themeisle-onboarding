@@ -18,9 +18,9 @@ class Admin {
 	 * Initialize the Admin.
 	 */
 	public function init() {
-		add_filter( 'query_vars', [ $this, 'add_onboarding_query_var' ] );
-		add_action( 'after_switch_theme', [ $this, 'get_previous_theme' ] );
-		add_filter( 'neve_dashboard_page_data', [ $this, 'localize_sites_library' ] );
+		add_filter( 'query_vars', array( $this, 'add_onboarding_query_var' ) );
+		add_action( 'after_switch_theme', array( $this, 'get_previous_theme' ) );
+		add_filter( 'neve_dashboard_page_data', array( $this, 'localize_sites_library' ) );
 	}
 
 	/**
@@ -101,30 +101,30 @@ class Admin {
 	 *
 	 * @return array
 	 */
-	public function  localize_sites_library($array) {
+	public function localize_sites_library( $array ) {
 
 		$theme = wp_get_theme();
-		$api = array(
+		$api   = array(
 			'root'            => esc_url_raw( rest_url( Main::API_ROOT ) ),
 			'nonce'           => wp_create_nonce( 'wp_rest' ),
 			'homeUrl'         => esc_url( home_url() ),
-			'i18n'           => $this->get_strings(),
+			'i18n'            => $this->get_strings(),
 			'onboarding'      => false,
 			'readyImport'     => '',
 			'contentImported' => $this->escape_bool_text( get_theme_mod( 'ti_content_imported', 'no' ) ),
 			'aboutUrl'        => esc_url( admin_url( 'themes.php?page=' . $theme->__get( 'stylesheet' ) . '-welcome' ) ),
 			'importSteps'     => $this->get_import_steps(),
 			'logUrl'          => Logger::get_instance()->get_log_url(),
-			'strings' => [
-				'troubleshooting'                => sprintf(
+			'strings'         => array(
+				'troubleshooting' => sprintf(
 					__( 'Hi! It seems there is a configuration issue with your server that\'s causing the import to fail. Take a look at our %1$s to see if any of the proposed solutions work.', 'textdomain' ),
 					sprintf( '<a href="https://docs.themeisle.com/article/1157-starter-sites-library-import-is-not-working">%1$s <i class="dashicons dashicons-external"></i></a>', __( 'troubleshooting guide', 'textdomain' ) )
 				),
-				'support'                => sprintf(
+				'support'         => sprintf(
 					__( 'If none of the solutions in the guide work, please %1$s with us with the error code below, so we can help you fix this.', 'textdomain' ),
 					sprintf( '<a href="https://themeisle.com/contact">%1$s <i class="dashicons dashicons-external"></i></a>', __( 'get in touch', 'textdomain' ) )
 				),
-			]
+			),
 		);
 
 		$is_onboarding = isset( $_GET['onboarding'] ) && $_GET['onboarding'] === 'yes';

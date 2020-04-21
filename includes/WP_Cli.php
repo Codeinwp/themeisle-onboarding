@@ -78,12 +78,12 @@ class WP_Cli {
 	 * Setup class props.
 	 */
 	private function setup_props() {
-		$theme_support = get_theme_support( 'themeisle-demo-import' );
-		$this->data = $theme_support[ 0 ];
+		$theme_support             = get_theme_support( 'themeisle-demo-import' );
+		$this->data                = $theme_support[0];
 		$this->theme_mods_importer = new Theme_Mods_Importer();
-		$this->content_importer = new Content_Importer();
-		$this->widgets_importer = new Widgets_Importer();
-		$this->plugin_importer = new Plugin_Importer();
+		$this->content_importer    = new Content_Importer();
+		$this->widgets_importer    = new Widgets_Importer();
+		$this->plugin_importer     = new Plugin_Importer();
 	}
 
 	/**
@@ -120,8 +120,8 @@ class WP_Cli {
 		);
 
 		$this->data = wp_parse_args( $this->data, $defaults );
-		$editors = $this->data[ 'editors' ];
-		$all_sites = array();
+		$editors    = $this->data['editors'];
+		$all_sites  = array();
 		foreach ( $this->locations as $site_source ) {
 			if ( ! isset( $this->data[ $site_source ] ) || empty( $this->data[ $site_source ] ) ) {
 				continue;
@@ -131,14 +131,14 @@ class WP_Cli {
 					continue;
 				}
 				foreach ( $this->data[ $site_source ][ $editor ] as $site_slug => $data ) {
-					$this->data[ $site_source ][ $editor ][ $site_slug ][ 'slug' ] = $site_slug;
-					$this->data[ $site_source ][ $editor ][ $site_slug ][ 'editor' ] = $editor;
-					$this->data[ $site_source ][ $editor ][ $site_slug ][ 'source' ] = $site_source;
-					if ( isset( $data[ 'local_json' ] ) ) {
-						$this->data[ $site_source ][ $editor ][ $site_slug ][ 'local_json' ] = $data[ 'local_json' ];
+					$this->data[ $site_source ][ $editor ][ $site_slug ]['slug']   = $site_slug;
+					$this->data[ $site_source ][ $editor ][ $site_slug ]['editor'] = $editor;
+					$this->data[ $site_source ][ $editor ][ $site_slug ]['source'] = $site_source;
+					if ( isset( $data['local_json'] ) ) {
+						$this->data[ $site_source ][ $editor ][ $site_slug ]['local_json'] = $data['local_json'];
 					}
-					if ( isset( $data[ 'remote_json' ] ) ) {
-						$this->data[ $site_source ][ $editor ][ $site_slug ][ 'remote_json' ] = $data[ 'remote_json' ];
+					if ( isset( $data['remote_json'] ) ) {
+						$this->data[ $site_source ][ $editor ][ $site_slug ]['remote_json'] = $data['remote_json'];
 					}
 					$all_sites[ $site_slug ] = $this->data[ $site_source ][ $editor ][ $site_slug ];
 				}
@@ -168,8 +168,8 @@ class WP_Cli {
 	public function import( $args, $assoc_args ) {
 
 		$this->setup_props();
-		$sites = $this->get_all_sites();
-		$site_slug = $args[ 0 ];
+		$sites     = $this->get_all_sites();
+		$site_slug = $args[0];
 		if ( ! array_key_exists( $site_slug, $sites ) ) {
 			\WP_CLI::warning( "No site to import with the slug ${site_slug}." );
 
@@ -182,10 +182,10 @@ class WP_Cli {
 		$this->import_plugins_for_starter_site( $json_array );
 		$xml = $this->get_starter_site_xml( $site, $json_array );
 		\WP_CLI::line( 'Importing content file...' );
-		$this->import_xml_file( $xml, array_merge( array( 'demoSlug' => $site_slug ), $json_array ), $site[ 'editor' ] );
+		$this->import_xml_file( $xml, array_merge( array( 'demoSlug' => $site_slug ), $json_array ), $site['editor'] );
 		\WP_CLI::line( 'Done!' );
 		$this->import_theme_mods( $json_array );
-		$this->setup_pages( $json_array, $args[ 0 ] );
+		$this->setup_pages( $json_array, $args[0] );
 		$this->import_widgets( $json_array );
 	}
 
@@ -195,10 +195,10 @@ class WP_Cli {
 	 * @param array $json site json data.
 	 */
 	private function import_widgets( $json ) {
-		if ( ! isset( $json[ 'widgets' ] ) || empty( $json[ 'widgets' ] ) ) {
+		if ( ! isset( $json['widgets'] ) || empty( $json['widgets'] ) ) {
 			return;
 		}
-		$this->widgets_importer->actually_import( $json[ 'widgets' ] );
+		$this->widgets_importer->actually_import( $json['widgets'] );
 	}
 
 	/**
@@ -208,14 +208,14 @@ class WP_Cli {
 	 * @param string $demo_slug the demo slug.
 	 */
 	private function setup_pages( $json, $demo_slug ) {
-		if ( isset( $json[ 'front_page' ] ) ) {
-			$this->content_importer->setup_front_page( $json[ 'front_page' ], $demo_slug );
+		if ( isset( $json['front_page'] ) ) {
+			$this->content_importer->setup_front_page( $json['front_page'], $demo_slug );
 		} else {
 			\WP_CLI::warning( 'Incorrect front page arguments.' );
 		}
 
-		if ( isset( $json[ 'shop_pages' ] ) ) {
-			$this->content_importer->setup_shop_pages( $json[ 'shop_pages' ], $demo_slug );
+		if ( isset( $json['shop_pages'] ) ) {
+			$this->content_importer->setup_shop_pages( $json['shop_pages'], $demo_slug );
 		} else {
 			\WP_CLI::warning( 'No shop page arguments.' );
 		}
@@ -228,15 +228,15 @@ class WP_Cli {
 	 */
 	private function import_theme_mods( $json ) {
 
-		if ( isset( $json[ 'theme_mods' ] ) && ! empty( $json[ 'theme_mods' ] ) ) {
+		if ( isset( $json['theme_mods'] ) && ! empty( $json['theme_mods'] ) ) {
 			array_walk(
-				$json[ 'theme_mods' ],
+				$json['theme_mods'],
 				function ( &$item ) {
 					$item = $this->replace_image_urls( $item );
 				}
 			);
 
-			foreach ( $json[ 'theme_mods' ] as $key => $value ) {
+			foreach ( $json['theme_mods'] as $key => $value ) {
 				if ( $key === '__ti_import_menus_location' ) {
 					continue;
 				}
@@ -252,8 +252,8 @@ class WP_Cli {
 			}
 		}
 
-		if ( isset( $json[ 'wp_options' ] ) && ! empty( $json[ 'wp_options' ] ) ) {
-			foreach ( $json[ 'wp_options' ] as $key => $value ) {
+		if ( isset( $json['wp_options'] ) && ! empty( $json['wp_options'] ) ) {
+			foreach ( $json['wp_options'] as $key => $value ) {
 				if ( $value === 'true' ) {
 					$value = true;
 				}
@@ -266,8 +266,8 @@ class WP_Cli {
 		}
 
 		// Set nav menu locations.
-		if ( isset( $json[ 'theme_mods' ][ '__ti_import_menus_location' ] ) ) {
-			$this->theme_mods_importer->setup_nav_menus( $json[ 'theme_mods' ][ '__ti_import_menus_location' ] );
+		if ( isset( $json['theme_mods']['__ti_import_menus_location'] ) ) {
+			$this->theme_mods_importer->setup_nav_menus( $json['theme_mods']['__ti_import_menus_location'] );
 		}
 		\WP_CLI::success( 'Theme mods imported.' );
 	}
@@ -295,12 +295,12 @@ class WP_Cli {
 	private function import_plugins_for_starter_site( $json_data ) {
 		$all_plugins = array();
 
-		if ( isset( $json_data[ 'recommended_plugins' ] ) ) {
-			$all_plugins = array_merge( $all_plugins, array_keys( $json_data[ 'recommended_plugins' ] ) );
+		if ( isset( $json_data['recommended_plugins'] ) ) {
+			$all_plugins = array_merge( $all_plugins, array_keys( $json_data['recommended_plugins'] ) );
 		}
 
-		if ( isset( $json_data[ 'mandatory_plugins' ] ) ) {
-			$all_plugins = array_merge( $all_plugins, array_keys( $json_data[ 'mandatory_plugins' ] ) );
+		if ( isset( $json_data['mandatory_plugins'] ) ) {
+			$all_plugins = array_merge( $all_plugins, array_keys( $json_data['mandatory_plugins'] ) );
 		}
 
 		$all_plugins = array_combine( $all_plugins, $all_plugins );
@@ -365,10 +365,10 @@ class WP_Cli {
 			'title',
 		);
 
-		if ( $assoc_args[ 'field' ] ) {
-			if ( in_array( $assoc_args[ 'field' ], $fields, true ) ) {
+		if ( $assoc_args['field'] ) {
+			if ( in_array( $assoc_args['field'], $fields, true ) ) {
 				$formatter = new \WP_CLI\Formatter( $assoc_args, null );
-				$formatter->display_items( $this->get_all_sites(), array( $assoc_args[ 'field' ] ) );
+				$formatter->display_items( $this->get_all_sites(), array( $assoc_args['field'] ) );
 			} else {
 				\WP_CLI::error( 'Error' );
 			}
@@ -376,11 +376,11 @@ class WP_Cli {
 			return;
 		}
 
-		if ( $assoc_args[ 'show-url' ] === 'true' ) {
+		if ( $assoc_args['show-url'] === 'true' ) {
 			$fields[] = 'url';
 		}
 
-		\WP_CLI\Utils\format_items( 'table', $this->get_all_sites( $assoc_args[ 'source' ] ), $fields );
+		\WP_CLI\Utils\format_items( 'table', $this->get_all_sites( $assoc_args['source'] ), $fields );
 	}
 
 	/**
@@ -392,16 +392,16 @@ class WP_Cli {
 	 * @return string
 	 */
 	private function get_starter_site_xml( $site, $json ) {
-		$source = $site[ 'source' ];
-		$slug = $site[ 'slug' ];
+		$source = $site['source'];
+		$slug   = $site['slug'];
 
 		if ( $source === 'local' ) {
 			return get_template_directory() . '/onboarding/' . $slug . '/export.xml';
 		}
 		set_time_limit( 0 );
-		\WP_CLI::line( 'Saving... ' . $json[ 'content_file' ] );
+		\WP_CLI::line( 'Saving... ' . $json['content_file'] );
 
-		$response_file = wp_remote_get( $json[ 'content_file' ] );
+		$response_file     = wp_remote_get( $json['content_file'] );
 		$content_file_path = $this->content_importer->save_xhr_return_path( wp_remote_retrieve_body( $response_file ) );
 		\WP_CLI::line( 'Saved content file in ' . $content_file_path );
 
@@ -416,26 +416,26 @@ class WP_Cli {
 	 * @return array
 	 */
 	private function get_starter_site_json( $site ) {
-		$slug = $site[ 'slug' ];
-		$editor = $site[ 'editor' ];
-		$source = $site[ 'source' ];
+		$slug   = $site['slug'];
+		$editor = $site['editor'];
+		$source = $site['source'];
 
 		global $wp_filesystem;
 		WP_Filesystem();
 		if ( $source === 'local' ) {
 			return json_decode( $wp_filesystem->get_contents( get_template_directory() . '/onboarding/' . $slug . '/data.json' ), true );
 		}
-		if ( isset( $site[ 'local_json' ] ) ) {
-			return json_decode( $wp_filesystem->get_contents( $site[ 'local_json' ] ), true );
+		if ( isset( $site['local_json'] ) ) {
+			return json_decode( $wp_filesystem->get_contents( $site['local_json'] ), true );
 		}
-		$site_url = isset( $site[ 'remote_json' ] ) ? $site[ 'remote_json' ] : $this->data[ $source ][ $editor ][ $slug ][ 'url' ];
-		$request = wp_remote_get( $site_url . 'wp-json/ti-demo-data/data' );
+		$site_url      = isset( $site['remote_json'] ) ? $site['remote_json'] : $this->data[ $source ][ $editor ][ $slug ]['url'];
+		$request       = wp_remote_get( $site_url . 'wp-json/ti-demo-data/data' );
 		$response_code = wp_remote_retrieve_response_code( $request );
-		if ( $response_code !== 200 || empty( $request[ 'body' ] ) || ! isset( $request[ 'body' ] ) ) {
+		if ( $response_code !== 200 || empty( $request['body'] ) || ! isset( $request['body'] ) ) {
 			\WP_CLI::warning( 'Cannot get site json data.' );
 		}
 
-		$json = json_decode( $request[ 'body' ], true );
+		$json = json_decode( $request['body'], true );
 
 		return $json;
 	}

@@ -56,8 +56,8 @@ class Content_Importer {
 
 		$body = $request->get_json_params();
 
-		$content_file_url = $body[ 'contentFile' ];
-		$page_builder = isset( $body[ 'editor' ] ) ? $body[ 'editor' ] : '';
+		$content_file_url = $body['contentFile'];
+		$page_builder     = isset( $body['editor'] ) ? $body['editor'] : '';
 
 		if ( empty( $content_file_url ) ) {
 			$this->logger->log( "No content file to import at url {$content_file_url}" );
@@ -70,7 +70,7 @@ class Content_Importer {
 			);
 		}
 
-		if ( ! isset( $body[ 'source' ] ) || empty( $body[ 'source' ] ) ) {
+		if ( ! isset( $body['source'] ) || empty( $body['source'] ) ) {
 			$this->logger->log( 'No source defined for the import.' );
 
 			return new WP_REST_Response(
@@ -82,11 +82,11 @@ class Content_Importer {
 		}
 
 		set_time_limit( 0 );
-		require_once(ABSPATH . 'wp-admin/includes/file.php');
-		require_once(ABSPATH . 'wp-admin/includes/image.php');
-		require_once(ABSPATH . 'wp-admin/includes/media.php');
+		require_once( ABSPATH . 'wp-admin/includes/file.php' );
+		require_once( ABSPATH . 'wp-admin/includes/image.php' );
+		require_once( ABSPATH . 'wp-admin/includes/media.php' );
 
-		if ( $body[ 'source' ] === 'remote' ) {
+		if ( $body['source'] === 'remote' ) {
 			$this->logger->log( 'Saving remote XML', 'progress' );
 
 			$response_file = wp_remote_get( $content_file_url );
@@ -114,7 +114,7 @@ class Content_Importer {
 			);
 		}
 
-		if ( $body[ 'source' ] === 'remote' ) {
+		if ( $body['source'] === 'remote' ) {
 			unlink( $content_file_path );
 		}
 
@@ -124,14 +124,14 @@ class Content_Importer {
 		$this->maybe_bust_elementor_cache();
 
 		// Set front page.
-		if ( isset( $body[ 'frontPage' ] ) ) {
-			$frontpage_id = $this->setup_front_page( $body[ 'frontPage' ], $body[ 'demoSlug' ] );
+		if ( isset( $body['frontPage'] ) ) {
+			$frontpage_id = $this->setup_front_page( $body['frontPage'], $body['demoSlug'] );
 		}
 		do_action( 'themeisle_ob_after_front_page_setup' );
 
 		// Set shop pages.
-		if ( isset( $body[ 'shopPages' ] ) ) {
-			$this->setup_shop_pages( $body[ 'shopPages' ], $body[ 'demoSlug' ] );
+		if ( isset( $body['shopPages'] ) ) {
+			$this->setup_shop_pages( $body['shopPages'], $body['demoSlug'] );
 		}
 		do_action( 'themeisle_ob_after_shop_pages_setup' );
 
@@ -156,8 +156,8 @@ class Content_Importer {
 	 */
 	public function save_xhr_return_path( $content ) {
 		$wp_upload_dir = wp_upload_dir( null, false );
-		$file_path = $wp_upload_dir[ 'basedir' ] . '/themeisle-demo-import.xml';
-		require_once(ABSPATH . '/wp-admin/includes/file.php');
+		$file_path     = $wp_upload_dir['basedir'] . '/themeisle-demo-import.xml';
+		require_once( ABSPATH . '/wp-admin/includes/file.php' );
 		global $wp_filesystem;
 		WP_Filesystem();
 		$wp_filesystem->put_contents( $file_path, $content );
@@ -177,7 +177,7 @@ class Content_Importer {
 		if ( ! is_array( $args ) ) {
 			return;
 		}
-		if ( empty( $args[ 'front_page' ] ) && empty( $args[ 'blog_page' ] ) ) {
+		if ( empty( $args['front_page'] ) && empty( $args['blog_page'] ) ) {
 			$this->logger->log( 'No front page to set up.', 'success' );
 
 			return null;
@@ -185,15 +185,15 @@ class Content_Importer {
 
 		update_option( 'show_on_front', 'page' );
 
-		if ( isset( $args[ 'front_page' ] ) && $args[ 'front_page' ] !== null ) {
-			$front_page_obj = get_page_by_path( $this->cleanup_page_slug( $args[ 'front_page' ], $demo_slug ) );
+		if ( isset( $args['front_page'] ) && $args['front_page'] !== null ) {
+			$front_page_obj = get_page_by_path( $this->cleanup_page_slug( $args['front_page'], $demo_slug ) );
 			if ( isset( $front_page_obj->ID ) ) {
 				update_option( 'page_on_front', $front_page_obj->ID );
 			}
 		}
 
-		if ( isset( $args[ 'blog_page' ] ) && $args[ 'blog_page' ] !== null ) {
-			$blog_page_obj = get_page_by_path( $this->cleanup_page_slug( $args[ 'blog_page' ], $demo_slug ) );
+		if ( isset( $args['blog_page'] ) && $args['blog_page'] !== null ) {
+			$blog_page_obj = get_page_by_path( $this->cleanup_page_slug( $args['blog_page'], $demo_slug ) );
 			if ( isset( $blog_page_obj->ID ) ) {
 				update_option( 'page_for_posts', $blog_page_obj->ID );
 			}
@@ -263,7 +263,7 @@ class Content_Importer {
 		}
 
 		$alterator = new Importer_Alterator( $req_body );
-		$importer = new WP_Import( $builder );
+		$importer  = new WP_Import( $builder );
 
 		return $importer->import( $file_path );
 	}

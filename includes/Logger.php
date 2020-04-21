@@ -68,7 +68,7 @@ class Logger {
 		if ( TI_OB_DEBUG_LOG !== true ) {
 			return;
 		}
-		require_once(ABSPATH . 'wp-admin/includes/file.php'); // you have to load this file
+		require_once( ABSPATH . 'wp-admin/includes/file.php' ); // you have to load this file
 		add_action( 'shutdown', array( $this, 'log_to_file' ) );
 		$this->set_log_path();
 		$this->clear_log();

@@ -47,7 +47,7 @@ class Elementor_Meta_Handler {
 	 * @param string $site_url the site url.
 	 */
 	public function __construct( $unfiltered_value, $site_url ) {
-		$this->value = $unfiltered_value;
+		$this->value      = $unfiltered_value;
 		$this->import_url = $site_url;
 	}
 
@@ -89,7 +89,7 @@ class Elementor_Meta_Handler {
 			return;
 		}
 
-		$site_url = get_site_url();
+		$site_url  = get_site_url();
 		$url_parts = parse_url( $site_url );
 
 		array_walk_recursive(
@@ -101,11 +101,11 @@ class Elementor_Meta_Handler {
 
 				$url = parse_url( $value );
 
-				if ( ! isset( $url[ 'host' ] ) || ! isset( $url_parts[ 'host' ] ) ) {
+				if ( ! isset( $url['host'] ) || ! isset( $url_parts['host'] ) ) {
 					return;
 				}
 
-				if ( $url[ 'host' ] !== $url_parts[ 'host' ] ) {
+				if ( $url['host'] !== $url_parts['host'] ) {
 					$value = str_replace( $this->import_url, $site_url, $value );
 				}
 			}

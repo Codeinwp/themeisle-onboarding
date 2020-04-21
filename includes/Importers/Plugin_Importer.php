@@ -85,7 +85,7 @@ class Plugin_Importer {
 		}
 
 		foreach ( $plugins as $slug => $state ) {
-			if ( ! $state || empty( $state )) {
+			if ( ! $state || empty( $state ) ) {
 				unset( $plugins[ $slug ] );
 			}
 		}
@@ -149,11 +149,11 @@ class Plugin_Importer {
 
 		do_action( 'themeisle_ob_before_single_plugin_install', $plugin_slug );
 
-		require_once(ABSPATH . 'wp-admin/includes/plugin-install.php');
-		require_once(ABSPATH . 'wp-admin/includes/file.php');
-		require_once(ABSPATH . 'wp-admin/includes/misc.php');
-		require_once(ABSPATH . 'wp-admin/includes/plugin.php');
-		require_once(ABSPATH . 'wp-admin/includes/class-wp-upgrader.php');
+		require_once( ABSPATH . 'wp-admin/includes/plugin-install.php' );
+		require_once( ABSPATH . 'wp-admin/includes/file.php' );
+		require_once( ABSPATH . 'wp-admin/includes/misc.php' );
+		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+		require_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 
 		$api = plugins_api(
 			'plugin_information',
@@ -178,9 +178,9 @@ class Plugin_Importer {
 
 		if ( version_compare( PHP_VERSION, '5.6' ) === -1 ) {
 			$skin = new Quiet_Skin_Legacy(
-				[
+				array(
 					'api' => $api,
-				]
+				)
 			);
 		} else {
 			$skin = new Quiet_Skin(
@@ -190,7 +190,7 @@ class Plugin_Importer {
 			);
 		}
 		$upgrader = new Plugin_Upgrader( $skin );
-		$install = $upgrader->install( $api->download_link );
+		$install  = $upgrader->install( $api->download_link );
 		if ( $install !== true ) {
 			$this->log .= 'Error: Install process failed (' . ucwords( $plugin_slug ) . ').' . "\n";
 
@@ -245,7 +245,7 @@ class Plugin_Importer {
 		}
 
 		$plugins_dir = WP_PLUGIN_DIR . '/';
-		$entry = $slug . '/' . $slug . '.php';
+		$entry       = $slug . '/' . $slug . '.php';
 		if ( ! file_exists( $plugins_dir . $entry ) ) {
 			$entry = $slug . '/index.php';
 		}
@@ -261,7 +261,7 @@ class Plugin_Importer {
 	private function activate_single_plugin( $plugin_slug ) {
 		$plugin_dir = WP_PLUGIN_DIR . '/' . $plugin_slug;
 
-		$plugin_path = $this->get_plugin_path( $plugin_slug );
+		$plugin_path  = $this->get_plugin_path( $plugin_slug );
 		$plugin_entry = $this->get_plugin_entry( $plugin_slug );
 
 		if ( ! file_exists( $plugin_path ) ) {
@@ -272,7 +272,7 @@ class Plugin_Importer {
 
 		do_action( 'themeisle_ob_before_single_plugin_activation', $plugin_slug );
 
-		include_once(ABSPATH . 'wp-admin/includes/plugin.php');
+		include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 
 		if ( is_plugin_active( $plugin_entry ) ) {
 			$this->log .= '"' . ucwords( $plugin_slug ) . '" already active.' . "\n";
@@ -295,7 +295,7 @@ class Plugin_Importer {
 	 */
 	private function maybe_provide_activation_help( $slug, $path ) {
 		if ( $slug === 'woocommerce' ) {
-			require_once($path . '/includes/admin/wc-admin-functions.php');
+			require_once( $path . '/includes/admin/wc-admin-functions.php' );
 		}
 	}
 }
