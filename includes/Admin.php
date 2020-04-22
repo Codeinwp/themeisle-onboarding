@@ -45,56 +45,6 @@ class Admin {
 	}
 
 	/**
-	 * Render the sites library.
-	 */
-	public function render_site_library() {
-		if ( version_compare( PHP_VERSION, '5.4.0', '<' ) ) {
-			echo '<div>' . apply_filters( 'themeisle_onboarding_phprequired_text', 'ti_ob_err_phpv_less_than_5-4-0' ) . '</div>';
-
-			return;
-		}
-
-		if ( apply_filters( 'ti_onboarding_filter_module_status', true ) !== true ) {
-			return;
-		}
-
-		$this->enqueue();
-		?>
-		<div class="ti-sites-lib__wrap">
-			<div id="ti-sites-library">
-				<app></app>
-			</div>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Get return steps.
-	 *
-	 * @return array Import steps.
-	 */
-	private function get_import_steps() {
-		return array(
-			'plugins'    => array(
-				'nicename' => __( 'Installing Plugins', 'textdomain' ),
-				'done'     => 'no',
-			),
-			'content'    => array(
-				'nicename' => __( 'Importing Content', 'textdomain' ),
-				'done'     => 'no',
-			),
-			'theme_mods' => array(
-				'nicename' => __( 'Setting Up Customizer', 'textdomain' ),
-				'done'     => 'no',
-			),
-			'widgets'    => array(
-				'nicename' => __( 'Importing Widgets', 'textdomain' ),
-				'done'     => 'no',
-			),
-		);
-	}
-
-	/**
 	 * Localize the sites library.
 	 *
 	 * @param array $array the about page array.
@@ -102,20 +52,15 @@ class Admin {
 	 * @return array
 	 */
 	public function localize_sites_library( $array ) {
-
-		$theme = wp_get_theme();
-		$api   = array(
-			'root'            => esc_url_raw( rest_url( Main::API_ROOT ) ),
-			'nonce'           => wp_create_nonce( 'wp_rest' ),
-			'homeUrl'         => esc_url( home_url() ),
-			'i18n'            => $this->get_strings(),
-			'onboarding'      => false,
-			'readyImport'     => '',
-			'contentImported' => $this->escape_bool_text( get_theme_mod( 'ti_content_imported', 'no' ) ),
-			'aboutUrl'        => esc_url( admin_url( 'themes.php?page=' . $theme->__get( 'stylesheet' ) . '-welcome' ) ),
-			'importSteps'     => $this->get_import_steps(),
-			'logUrl'          => Logger::get_instance()->get_log_url(),
-			'strings'         => array(
+		$api = array(
+			'sites'      => $this->get_sites_data(),
+			'root'       => esc_url_raw( rest_url( Main::API_ROOT ) ),
+			'nonce'      => wp_create_nonce( 'wp_rest' ),
+			'homeUrl'    => esc_url( home_url() ),
+			'i18n'       => $this->get_strings(),
+			'onboarding' => false,
+			'logUrl'     => Logger::get_instance()->get_log_url(),
+			'strings'    => array(
 				'troubleshooting' => sprintf(
 					__( 'Hi! It seems there is a configuration issue with your server that\'s causing the import to fail. Take a look at our %1$s to see if any of the proposed solutions work.', 'textdomain' ),
 					sprintf( '<a href="https://docs.themeisle.com/article/1157-starter-sites-library-import-is-not-working">%1$s <i class="dashicons dashicons-external"></i></a>', __( 'troubleshooting guide', 'textdomain' ) )
@@ -127,18 +72,118 @@ class Admin {
 			),
 		);
 
-		$is_onboarding = isset( $_GET['onboarding'] ) && $_GET['onboarding'] === 'yes';
+		$is_onboarding = isset( $_GET[ 'onboarding' ] ) && $_GET[ 'onboarding' ] === 'yes';
 		if ( $is_onboarding ) {
-			$api['onboarding'] = true;
+			$api[ 'onboarding' ] = true;
 		}
 
-		if ( isset( $_GET['readyimport'] ) ) {
-			$api['readyImport'] = $_GET['readyimport'];
-		}
-		$array['onboarding'] = $api;
+		$array[ 'onboarding' ] = $api;
 
 		return $array;
 	}
+
+	private function get_sites_data() {
+		$theme_support = get_theme_support( 'themeisle-demo-import' );
+		if ( empty( $theme_support[ 0 ] ) || ! is_array( $theme_support[ 0 ] ) ) {
+			return null;
+		}
+		$theme_support = $theme_support[ 0 ];
+		$sites = isset( $theme_support[ 'remote' ] ) ? $theme_support[ 'remote' ] : null;
+		$upsells = isset( $theme_support[ 'upsell' ] ) ? $theme_support[ 'upsell' ] : null;
+
+		if ( $upsells !== null ) {
+			foreach ( $upsells as $builder => $upsells_for_builder ) {
+				foreach ( $upsells_for_builder as $upsell_slug => $upsell_data ) {
+					$upsells[ $builder ][ $upsell_slug ][ 'utmOutboundLink' ] = add_query_arg(
+						apply_filters( 'ti_onboarding_outbound_query_args', [
+							'utm_medium'   => 'about-' . get_template(),
+							'utm_source'   => $upsell_slug,
+							'utm_campaign' => 'siteslibrary',
+						] ), $theme_support[ 'pro_link' ] );
+				}
+			}
+		}
+
+		return [
+			'sites'     => $sites,
+			'upsells'   => $upsells,
+			'migration' => $this->get_migrateable( $theme_support ),
+		];
+	}
+
+	/**
+	 * Get migratable data.
+	 *
+	 * This is used if we can ensure migration from a previous theme to a template.
+	 *
+	 * @param array $theme_support the theme support array.
+	 *
+	 * @return array
+	 */
+	private function get_migrateable( $theme_support ) {
+		if ( ! isset( $theme_support[ 'can_migrate' ] ) ) {
+			return null;
+		}
+
+		$data = $theme_support[ 'can_migrate' ];
+		$old_theme = get_theme_mod( 'ti_prev_theme', 'ti_onboarding_undefined' );
+		$folder_name = $old_theme;
+		$previous_theme_slug = $this->get_parent_theme( $old_theme );
+
+		if ( ! empty( $previous_theme_slug ) ) {
+			$folder_name = $previous_theme_slug;
+			$old_theme = $previous_theme_slug;
+		}
+
+		if ( ! array_key_exists( $old_theme, $data ) ) {
+			return null;
+		}
+
+		$content_imported = get_theme_mod( $data[ $old_theme ][ 'theme_mod_check' ], 'not-imported' );
+		if ( $content_imported === 'yes' ) {
+			return null;
+		}
+
+		if ( in_array( $old_theme, [ 'zerif-lite', 'zerif-pro' ], true ) ) {
+			$folder_name = 'zelle';
+		}
+
+		$options = [
+			'theme_name'          => ! empty( $data[ $old_theme ][ 'theme_name' ] ) ? esc_html( $data[ $old_theme ][ 'theme_name' ] ) : '',
+			'screenshot'          => get_template_directory_uri() . Main::OBOARDING_PATH . '/migration/' . $folder_name . '/' . $data[ $old_theme ][ 'template' ] . '.png',
+			'template'            => get_template_directory() . Main::OBOARDING_PATH . '/migration/' . $folder_name . '/' . $data[ $old_theme ][ 'template' ] . '.json',
+			'template_name'       => $data[ $old_theme ][ 'template' ],
+			'heading'             => $data[ $old_theme ][ 'heading' ],
+			'description'         => $data[ $old_theme ][ 'description' ],
+			'theme_mod'           => $data[ $old_theme ][ 'theme_mod_check' ],
+			'mandatory_plugins'   => isset ( $data[ $old_theme ][ 'mandatory_plugins' ] ) ? $data[ $old_theme ][ 'mandatory_plugins' ] : [],
+			'recommended_plugins' => isset( $data[ $old_theme ][ 'recommended_plugins' ] ) ? $data[ $old_theme ][ 'recommended_plugins' ] : [],
+		];
+
+		if ( ! empty( $previous_theme_slug ) ) {
+			$options[ 'description' ] = __( 'Hi! We\'ve noticed you were using a child theme of Zelle before. To make your transition easier, we can help you keep the same homepage settings you had before but in original Zelle\'s style, by converting it into an Elementor template.', 'textdomain' );
+		}
+
+		return $options;
+	}
+
+	/**
+	 * Get previous theme parent if it's a child theme.
+	 *
+	 * @param string $previous_theme Previous theme slug.
+	 *
+	 * @return string
+	 */
+	private function get_parent_theme( $previous_theme ) {
+		$available_themes = wp_get_themes();
+		if ( ! array_key_exists( $previous_theme, $available_themes ) ) {
+			return false;
+		}
+		$theme_object = $available_themes[ $previous_theme ];
+
+		return $theme_object->get( 'Template' );
+	}
+
 
 	/**
 	 * Get strings.
