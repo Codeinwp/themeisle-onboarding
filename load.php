@@ -21,7 +21,12 @@ if ( TI_ONBOARDING_DISABLED === true ) {
 	return false;
 }
 
-require_once __DIR__ . '/vendor/autoload.php';
+$autoload_path = __DIR__ . '/vendor/autoload.php';
+
+if( is_file( $autoload_path ) ) {
+    require_once $autoload_path;
+}
+
 
 if ( class_exists( 'WP_CLI' ) ) {
 	require_once 'includes/WP_Cli.php';
