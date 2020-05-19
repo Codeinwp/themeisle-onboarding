@@ -60,16 +60,6 @@ class Admin {
 			'i18n'       => $this->get_strings(),
 			'onboarding' => false,
 			'logUrl'     => Logger::get_instance()->get_log_url(),
-			'strings'    => array(
-				'troubleshooting' => sprintf(
-					__( 'Hi! It seems there is a configuration issue with your server that\'s causing the import to fail. Take a look at our %1$s to see if any of the proposed solutions work.', 'textdomain' ),
-					sprintf( '<a href="https://docs.themeisle.com/article/1157-starter-sites-library-import-is-not-working">%1$s <i class="dashicons dashicons-external"></i></a>', __( 'troubleshooting guide', 'textdomain' ) )
-				),
-				'support'         => sprintf(
-					__( 'If none of the solutions in the guide work, please %1$s with us with the error code below, so we can help you fix this.', 'textdomain' ),
-					sprintf( '<a href="https://themeisle.com/contact">%1$s <i class="dashicons dashicons-external"></i></a>', __( 'get in touch', 'textdomain' ) )
-				),
-			),
 		);
 
 		$is_onboarding = isset( $_GET[ 'onboarding' ] ) && $_GET[ 'onboarding' ] === 'yes';
@@ -219,8 +209,24 @@ class Admin {
 			'copy_error_code'             => __( 'Copy error code', 'textdomain' ),
 			'download_error_log'          => __( 'Download error log', 'textdomain' ),
 			'external_plugins_notice'     => __( 'To import this demo you have to install the following plugins:', 'textdomain' ),
+			/* translators: 1 - 'here'. */
+			'rest_not_working'            => sprintf(
+				__( 'It seems that Rest API is not working properly on your website. Read about how you can fix it %1$s.', 'textdomain' ),
+				sprintf( '<a href="https://docs.themeisle.com/article/1157-starter-sites-library-import-is-not-working#rest-api">%1$s<i class="dashicons dashicons-external"></i></a>', __( 'here', 'textdomain' ) )
+			),
+			/* translators: 1 - 'get in touch'. */
 			'error_report'                => sprintf(
 				__( 'Hi! It seems there is a configuration issue with your server that\'s causing the import to fail. Please %1$s with us with the error code below, so we can help you fix this.', 'textdomain' ),
+				sprintf( '<a href="https://themeisle.com/contact">%1$s <i class="dashicons dashicons-external"></i></a>', __( 'get in touch', 'textdomain' ) )
+			),
+			/* translators: 1 - 'troubleshooting guide'. */
+			'troubleshooting'             => sprintf(
+				__( 'Hi! It seems there is a configuration issue with your server that\'s causing the import to fail. Take a look at our %1$s to see if any of the proposed solutions work.', 'textdomain' ),
+				sprintf( '<a href="https://docs.themeisle.com/article/1157-starter-sites-library-import-is-not-working">%1$s <i class="dashicons dashicons-external"></i></a>', __( 'troubleshooting guide', 'textdomain' ) )
+			),
+			/* translators: 1 - 'get in touch'. */
+			'support'                     => sprintf(
+				__( 'If none of the solutions in the guide work, please %1$s with us with the error code below, so we can help you fix this.', 'textdomain' ),
 				sprintf( '<a href="https://themeisle.com/contact">%1$s <i class="dashicons dashicons-external"></i></a>', __( 'get in touch', 'textdomain' ) )
 			),
 		);
