@@ -129,13 +129,6 @@ class Main {
 	}
 
 	/**
-	 * Render the onboarding.
-	 */
-	public function render_onboarding() {
-		$this->admin->render_site_library();
-	}
-
-	/**
 	 * Disallow object clone
 	 *
 	 * @access public

@@ -225,21 +225,4 @@ class Admin {
 			),
 		);
 	}
-
-	/**
-	 * Escape settings that return 'yes', 'no'.
-	 *
-	 * @param $value
-	 *
-	 * @return string
-	 */
-	private function escape_bool_text( $value ) {
-		$allowed = array( 'yes', 'no' );
-
-		if ( ! in_array( $value, $allowed, true ) ) {
-			return 'no';
-		}
-
-		return esc_html( $value );
-	}
 }
