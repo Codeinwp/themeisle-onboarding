@@ -23,8 +23,8 @@ if ( TI_ONBOARDING_DISABLED === true ) {
 
 $autoload_path = __DIR__ . '/vendor/autoload.php';
 
-if( is_file( $autoload_path ) ) {
-    require_once $autoload_path;
+if ( is_file( $autoload_path ) ) {
+	require_once $autoload_path;
 }
 
 

@@ -20,67 +20,11 @@ use WP_REST_Server;
  * Class Rest_Server
  */
 class Rest_Server {
-
-	/**
-	 * Front Page Id
-	 *
-	 * @var int
-	 */
-	private $frontpage_id;
-
-	/**
-	 * The theme support contents.
-	 *
-	 * @var array
-	 */
-	private $theme_support = array();
-	/**
-	 * @var Plugin_Importer
-	 */
-	private $plugin_importer;
-	/**
-	 * @var Content_Importer
-	 */
-	private $content_importer;
-	/**
-	 * @var Theme_Mods_Importer
-	 */
-	private $customizer_importer;
-	/**
-	 * @var Widgets_Importer
-	 */
-	private $widgets_importer;
-
-	/**
-	 * The array that passes all template data to the app.
-	 *
-	 * @var array
-	 */
-	private $data = array();
-
 	/**
 	 * Initialize the rest functionality.
 	 */
 	public function init() {
-		$this->content_importer    = new Content_Importer();
-		$this->plugin_importer     = new Plugin_Importer();
-		$this->customizer_importer = new Theme_Mods_Importer();
-		$this->widgets_importer    = new Widgets_Importer();
-		$this->setup_props();
 		add_action( 'rest_api_init', array( $this, 'register_endpoints' ) );
-	}
-
-	/**
-	 * Setup class properties.
-	 */
-	public function setup_props() {
-		$theme_support = get_theme_support( 'themeisle-demo-import' );
-
-		if ( empty( $theme_support[0] ) || ! is_array( $theme_support[0] ) ) {
-			return;
-		}
-
-		$this->theme_support = $theme_support[0];
 	}
 
 	/**
@@ -163,7 +107,8 @@ class Rest_Server {
 	 * @return WP_REST_Response
 	 */
 	public function run_plugin_importer( WP_REST_Request $request ) {
-		return $this->plugin_importer->install_plugins( $request );
+		$plugin_importer = new Plugin_Importer();
+		return $plugin_importer->install_plugins( $request );
 	}
 
 	/**
@@ -174,7 +119,8 @@ class Rest_Server {
 	 * @return WP_REST_Response
 	 */
 	public function run_xml_importer( WP_REST_Request $request ) {
-		return $this->content_importer->import_remote_xml( $request );
+		$content_importer = new Content_Importer();
+		return $content_importer->import_remote_xml( $request );
 	}
 
 	/**
@@ -185,7 +131,8 @@ class Rest_Server {
 	 * @return WP_REST_Response
 	 */
 	public function run_theme_mods_importer( WP_REST_Request $request ) {
-		return $this->customizer_importer->import_theme_mods( $request );
+		$customizer_importer = new Theme_Mods_Importer();
+		return $customizer_importer->import_theme_mods( $request );
 	}
 
 	/**
@@ -196,7 +143,8 @@ class Rest_Server {
 	 * @return WP_REST_Response
 	 */
 	public function run_widgets_importer( WP_REST_Request $request ) {
-		$import = $this->widgets_importer->import_widgets( $request );
+		$widgets_importer = new Widgets_Importer();
+		$import           = $widgets_importer->import_widgets( $request );
 
 		set_theme_mod( 'ti_content_imported', 'yes' );
 

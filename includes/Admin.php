@@ -59,46 +59,51 @@ class Admin {
 			'homeUrl'    => esc_url( home_url() ),
 			'i18n'       => $this->get_strings(),
 			'onboarding' => false,
-			'logUrl'     => Logger::get_instance()->get_log_url(),
+			'logUrl'     => WP_Filesystem() ? Logger::get_instance()->get_log_url() : null,
 		);
 
-		$is_onboarding = isset( $_GET[ 'onboarding' ] ) && $_GET[ 'onboarding' ] === 'yes';
+		$is_onboarding = isset( $_GET['onboarding'] ) && $_GET['onboarding'] === 'yes';
 		if ( $is_onboarding ) {
-			$api[ 'onboarding' ] = true;
+			$api['onboarding'] = true;
 		}
 
-		$array[ 'onboarding' ] = $api;
+		$array['onboarding'] = $api;
 
 		return $array;
 	}
 
 	private function get_sites_data() {
 		$theme_support = get_theme_support( 'themeisle-demo-import' );
-		if ( empty( $theme_support[ 0 ] ) || ! is_array( $theme_support[ 0 ] ) ) {
+		if ( empty( $theme_support[0] ) || ! is_array( $theme_support[0] ) ) {
 			return null;
 		}
-		$theme_support = $theme_support[ 0 ];
-		$sites = isset( $theme_support[ 'remote' ] ) ? $theme_support[ 'remote' ] : null;
-		$upsells = isset( $theme_support[ 'upsell' ] ) ? $theme_support[ 'upsell' ] : null;
+		$theme_support = $theme_support[0];
+		$sites         = isset( $theme_support['remote'] ) ? $theme_support['remote'] : null;
+		$upsells       = isset( $theme_support['upsell'] ) ? $theme_support['upsell'] : null;
 
 		if ( $upsells !== null ) {
 			foreach ( $upsells as $builder => $upsells_for_builder ) {
 				foreach ( $upsells_for_builder as $upsell_slug => $upsell_data ) {
-					$upsells[ $builder ][ $upsell_slug ][ 'utmOutboundLink' ] = add_query_arg(
-						apply_filters( 'ti_onboarding_outbound_query_args', [
-							'utm_medium'   => 'about-' . get_template(),
-							'utm_source'   => $upsell_slug,
-							'utm_campaign' => 'siteslibrary',
-						] ), $theme_support[ 'pro_link' ] );
+					$upsells[ $builder ][ $upsell_slug ]['utmOutboundLink'] = add_query_arg(
+						apply_filters(
+							'ti_onboarding_outbound_query_args',
+							array(
+								'utm_medium'   => 'about-' . get_template(),
+								'utm_source'   => $upsell_slug,
+								'utm_campaign' => 'siteslibrary',
+							)
+						),
+						$theme_support['pro_link']
+					);
 				}
 			}
 		}
 
-		return [
+		return array(
 			'sites'     => $sites,
 			'upsells'   => $upsells,
 			'migration' => $this->get_migrateable( $theme_support ),
-		];
+		);
 	}
 
 	/**
@@ -111,47 +116,47 @@ class Admin {
 	 * @return array
 	 */
 	private function get_migrateable( $theme_support ) {
-		if ( ! isset( $theme_support[ 'can_migrate' ] ) ) {
+		if ( ! isset( $theme_support['can_migrate'] ) ) {
 			return null;
 		}
 
-		$data = $theme_support[ 'can_migrate' ];
-		$old_theme = get_theme_mod( 'ti_prev_theme', 'ti_onboarding_undefined' );
-		$folder_name = $old_theme;
+		$data                = $theme_support['can_migrate'];
+		$old_theme           = get_theme_mod( 'ti_prev_theme', 'ti_onboarding_undefined' );
+		$folder_name         = $old_theme;
 		$previous_theme_slug = $this->get_parent_theme( $old_theme );
 
 		if ( ! empty( $previous_theme_slug ) ) {
 			$folder_name = $previous_theme_slug;
-			$old_theme = $previous_theme_slug;
+			$old_theme   = $previous_theme_slug;
 		}
 
 		if ( ! array_key_exists( $old_theme, $data ) ) {
 			return null;
 		}
 
-		$content_imported = get_theme_mod( $data[ $old_theme ][ 'theme_mod_check' ], 'not-imported' );
+		$content_imported = get_theme_mod( $data[ $old_theme ]['theme_mod_check'], 'not-imported' );
 		if ( $content_imported === 'yes' ) {
 			return null;
 		}
 
-		if ( in_array( $old_theme, [ 'zerif-lite', 'zerif-pro' ], true ) ) {
+		if ( in_array( $old_theme, array( 'zerif-lite', 'zerif-pro' ), true ) ) {
 			$folder_name = 'zelle';
 		}
 
-		$options = [
-			'theme_name'          => ! empty( $data[ $old_theme ][ 'theme_name' ] ) ? esc_html( $data[ $old_theme ][ 'theme_name' ] ) : '',
-			'screenshot'          => get_template_directory_uri() . Main::OBOARDING_PATH . '/migration/' . $folder_name . '/' . $data[ $old_theme ][ 'template' ] . '.png',
-			'template'            => get_template_directory() . Main::OBOARDING_PATH . '/migration/' . $folder_name . '/' . $data[ $old_theme ][ 'template' ] . '.json',
-			'template_name'       => $data[ $old_theme ][ 'template' ],
-			'heading'             => $data[ $old_theme ][ 'heading' ],
-			'description'         => $data[ $old_theme ][ 'description' ],
-			'theme_mod'           => $data[ $old_theme ][ 'theme_mod_check' ],
-			'mandatory_plugins'   => isset ( $data[ $old_theme ][ 'mandatory_plugins' ] ) ? $data[ $old_theme ][ 'mandatory_plugins' ] : [],
-			'recommended_plugins' => isset( $data[ $old_theme ][ 'recommended_plugins' ] ) ? $data[ $old_theme ][ 'recommended_plugins' ] : [],
-		];
+		$options = array(
+			'theme_name'          => ! empty( $data[ $old_theme ]['theme_name'] ) ? esc_html( $data[ $old_theme ]['theme_name'] ) : '',
+			'screenshot'          => get_template_directory_uri() . Main::OBOARDING_PATH . '/migration/' . $folder_name . '/' . $data[ $old_theme ]['template'] . '.png',
+			'template'            => get_template_directory() . Main::OBOARDING_PATH . '/migration/' . $folder_name . '/' . $data[ $old_theme ]['template'] . '.json',
+			'template_name'       => $data[ $old_theme ]['template'],
+			'heading'             => $data[ $old_theme ]['heading'],
+			'description'         => $data[ $old_theme ]['description'],
+			'theme_mod'           => $data[ $old_theme ]['theme_mod_check'],
+			'mandatory_plugins'   => isset( $data[ $old_theme ]['mandatory_plugins'] ) ? $data[ $old_theme ]['mandatory_plugins'] : array(),
+			'recommended_plugins' => isset( $data[ $old_theme ]['recommended_plugins'] ) ? $data[ $old_theme ]['recommended_plugins'] : array(),
+		);
 
 		if ( ! empty( $previous_theme_slug ) ) {
-			$options[ 'description' ] = __( 'Hi! We\'ve noticed you were using a child theme of Zelle before. To make your transition easier, we can help you keep the same homepage settings you had before but in original Zelle\'s style, by converting it into an Elementor template.', 'textdomain' );
+			$options['description'] = __( 'Hi! We\'ve noticed you were using a child theme of Zelle before. To make your transition easier, we can help you keep the same homepage settings you had before but in original Zelle\'s style, by converting it into an Elementor template.', 'textdomain' );
 		}
 
 		return $options;
@@ -228,6 +233,10 @@ class Admin {
 			'support'                     => sprintf(
 				__( 'If none of the solutions in the guide work, please %1$s with us with the error code below, so we can help you fix this.', 'textdomain' ),
 				sprintf( '<a href="https://themeisle.com/contact">%1$s <i class="dashicons dashicons-external"></i></a>', __( 'get in touch', 'textdomain' ) )
+			),
+			'fsDown'                     => sprintf(
+				__( 'It seems that %s is not available. You can contact your site administrator or hosting provider to help you enable it.', 'textdomain' ),
+				sprintf( '<code>WP_Filesystem</code>' )
 			),
 		);
 	}
