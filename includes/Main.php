@@ -46,7 +46,7 @@ class Main {
 	 *
 	 * @var Admin
 	 */
-	protected $admin = null;
+	public $admin = null;
 
 	/**
 	 * Method to return path to child class in a Reflective Way.

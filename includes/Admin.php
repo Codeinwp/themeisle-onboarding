@@ -72,10 +72,15 @@ class Admin {
 		return $array;
 	}
 
-	private function get_sites_data() {
+	/**
+	 * Get all the sites data.
+	 *
+	 * @return array
+	 */
+	public function get_sites_data() {
 		$theme_support = get_theme_support( 'themeisle-demo-import' );
 		if ( empty( $theme_support[0] ) || ! is_array( $theme_support[0] ) ) {
-			return null;
+			return array();
 		}
 		$theme_support = $theme_support[0];
 		$sites         = isset( $theme_support['remote'] ) ? $theme_support['remote'] : null;
@@ -234,7 +239,7 @@ class Admin {
 				__( 'If none of the solutions in the guide work, please %1$s with us with the error code below, so we can help you fix this.', 'textdomain' ),
 				sprintf( '<a href="https://themeisle.com/contact">%1$s <i class="dashicons dashicons-external"></i></a>', __( 'get in touch', 'textdomain' ) )
 			),
-			'fsDown'                     => sprintf(
+			'fsDown'                      => sprintf(
 				__( 'It seems that %s is not available. You can contact your site administrator or hosting provider to help you enable it.', 'textdomain' ),
 				sprintf( '<code>WP_Filesystem</code>' )
 			),
