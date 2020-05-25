@@ -33,6 +33,18 @@ class Rest_Server {
 	public function register_endpoints() {
 		register_rest_route(
 			Main::API_ROOT,
+			'/refresh_sites_data',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_sites_data' ),
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
+		register_rest_route(
+			Main::API_ROOT,
 			'/install_plugins',
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -42,6 +54,7 @@ class Rest_Server {
 				},
 			)
 		);
+
 		register_rest_route(
 			Main::API_ROOT,
 			'/import_content',
@@ -95,6 +108,18 @@ class Rest_Server {
 				'permission_callback' => function () {
 					return current_user_can( 'manage_options' );
 				},
+			)
+		);
+	}
+
+	/**
+	 * Refreshes the sites data.
+	 */
+	public function get_sites_data() {
+		return new WP_REST_Response(
+			array(
+				'success' => true,
+				'data'    => Main::instance()->admin->get_sites_data(),
 			)
 		);
 	}
