@@ -18,12 +18,12 @@ class Logger {
 	 * @var array
 	 */
 	private $icon_map = array(
-		'success'  => '✅',
-		'warning'  => '⚠️',
-		'progress' => '🔵',
-		'error'    => '🔴️',
-		'generic'  => '⚪️',
-		'info'     => 'ℹ️',
+		'success'  => 'S',
+		'warning'  => 'W',
+		'progress' => 'P',
+		'error'    => 'E',
+		'generic'  => '-',
+		'info'     => 'I',
 	);
 
 	/**
