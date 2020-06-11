@@ -17,7 +17,7 @@ module.exports = function (grunt) {
 						prefix: '\\.*\\VERSION\.*\\s=\.*\\s\''
 					},
 					src: [
-					'class-themeisle-onboarding.php'
+					'includes/Main.php'
 					]
 				},
 			},
