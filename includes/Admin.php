@@ -104,11 +104,62 @@ class Admin {
 			}
 		}
 
+		$sites = $this->shuffle_sites( $sites );
+
 		return array(
 			'sites'     => $sites,
 			'upsells'   => $upsells,
 			'migration' => $this->get_migrateable( $theme_support ),
 		);
+	}
+
+	/**
+	 * Shuffle available sites to change display order.
+	 *
+	 * @param array $sites sites array.
+	 * @return array
+	 */
+	private function shuffle_sites( $sites ) {
+		$web_agencies = array(
+			'elementor'      => 'neve-web-agency',
+			'beaver builder' => 'neve-beaver-web-agency',
+			'gutenberg'      => 'neve-web-agency-gutenberg',
+		);
+		foreach ( $sites as $editor => $sites_for_editor ) {
+			$web_agency = false;
+			if ( isset( $web_agencies[ $editor ] ) ) {
+				$web_agency_slug = $web_agencies[ $editor ];
+				$web_agency      = $sites_for_editor[ $web_agency_slug ];
+				unset( $sites_for_editor[ $web_agency_slug ] );
+			}
+			$sites_for_editor = $this->shuffle_associative_array( $sites_for_editor );
+			if ( $web_agency && isset( $web_agencies[ $editor ] ) ) {
+				$agency_item                             = array();
+				$agency_item[ $web_agencies[ $editor ] ] = $web_agency;
+				$sites_for_editor                        = array_merge( $agency_item, $sites_for_editor );
+			}
+			$sites[ $editor ] = $sites_for_editor;
+		}
+
+		return $sites;
+	}
+
+	/**
+	 * Shuffle associative array.
+	 *
+	 * @param array $array associative array.
+	 * @return array
+	 */
+	private function shuffle_associative_array( $array ) {
+		$keys     = array_keys( $array );
+		$shuffled = array();
+
+		shuffle( $keys );
+		foreach ( $keys as $key ) {
+			$shuffled[ $key ] = $array[ $key ];
+		}
+
+		return $shuffled;
 	}
 
 	/**

@@ -89,7 +89,14 @@ class Content_Importer {
 		if ( $body['source'] === 'remote' ) {
 			$this->logger->log( 'Saving remote XML', 'progress' );
 
-			$response_file = wp_remote_get( $content_file_url );
+			$request_args = array(
+				'headers' => array(
+					'User-Agent' => 'WordPress/' . md5( get_site_url() ),
+				),
+			);
+
+			$response_file = wp_remote_get( add_query_arg( 'key', apply_filters( 'product_neve_license_key', 'free' ), $content_file_url ), $request_args );
+
 			if ( is_wp_error( $response_file ) ) {
 				$this->logger->log( "Error saving the remote file:  {$response_file->get_error_message()}.", 'success' );
 			}
