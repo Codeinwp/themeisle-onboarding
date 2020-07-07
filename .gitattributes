@@ -8,6 +8,8 @@ cypress.json export-ignore
 .releaserc.json 	        export-ignore
 composer.json 	        export-ignore
 composer.lock 	        export-ignore
+.github 	        export-ignore
+DEVELOPMENT.md 	        export-ignore
 .nvmrc 	        export-ignore
 package.json 	export-ignore
 package-lock.json 	export-ignore

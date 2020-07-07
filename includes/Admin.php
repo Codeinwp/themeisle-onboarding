@@ -117,37 +117,46 @@ class Admin {
 	 * Shuffle available sites to change display order.
 	 *
 	 * @param array $sites sites array.
+	 *
 	 * @return array
 	 */
 	private function shuffle_sites( $sites ) {
-		$web_agencies = array(
-			'elementor'      => 'neve-web-agency',
-			'beaver builder' => 'neve-beaver-web-agency',
-			'gutenberg'      => 'neve-web-agency-gutenberg',
+		$fixed      = array(
+			'elementor'      => array(
+				'neve-web-agency' => true,
+				'neve-main'       => true,
+			),
+			'beaver builder' => array(
+				'neve-beaver-web-agency' => true,
+				'neve-beaver-onboarding' => true,
+			),
+			'gutenberg'      => array(
+				'neve-web-agency-gutenberg' => true,
+				'neve-main-gutenberg'       => true,
+			),
+			'brizy'          => array( 'neve-brizy-main' => true ),
 		);
+		$normalized = array();
 		foreach ( $sites as $editor => $sites_for_editor ) {
-			$web_agency = false;
-			if ( isset( $web_agencies[ $editor ] ) ) {
-				$web_agency_slug = $web_agencies[ $editor ];
-				$web_agency      = $sites_for_editor[ $web_agency_slug ];
-				unset( $sites_for_editor[ $web_agency_slug ] );
+			$normalized[ $editor ] = isset( $fixed[ $editor ] ) ? $fixed[ $editor ] : array();
+			$sites_for_editor      = $this->shuffle_associative_array( $sites_for_editor );
+			foreach ( $sites_for_editor as $site_slug => $site_data ) {
+				if ( isset( $normalized[ $editor ][ $site_slug ] ) ) {
+					$normalized[ $editor ][ $site_slug ] = $site_data;
+					unset( $sites_for_editor[ $site_slug ] );
+				}
 			}
-			$sites_for_editor = $this->shuffle_associative_array( $sites_for_editor );
-			if ( $web_agency && isset( $web_agencies[ $editor ] ) ) {
-				$agency_item                             = array();
-				$agency_item[ $web_agencies[ $editor ] ] = $web_agency;
-				$sites_for_editor                        = array_merge( $agency_item, $sites_for_editor );
-			}
-			$sites[ $editor ] = $sites_for_editor;
+			$normalized[ $editor ] = array_merge( $normalized[ $editor ], $sites_for_editor );
 		}
 
-		return $sites;
+		return $normalized;
 	}
 
 	/**
 	 * Shuffle associative array.
 	 *
 	 * @param array $array associative array.
+	 *
 	 * @return array
 	 */
 	private function shuffle_associative_array( $array ) {
@@ -212,7 +221,7 @@ class Admin {
 		);
 
 		if ( ! empty( $previous_theme_slug ) ) {
-			$options['description'] = __( 'Hi! We\'ve noticed you were using a child theme of Zelle before. To make your transition easier, we can help you keep the same homepage settings you had before but in original Zelle\'s style, by converting it into an Elementor template.', 'textdomain' );
+			$options['description'] = __( 'Hi! We\'ve noticed you were using a child theme of Zelle before. To make your transition easier, we can help you keep the same homepage settings you had before but in original Zelle\'s style, by converting it into an Elementor template.', 'neve' );
 		}
 
 		return $options;
@@ -243,55 +252,55 @@ class Admin {
 	 */
 	private function get_strings() {
 		return array(
-			'preview_btn'                 => __( 'Preview', 'textdomain' ),
-			'import_btn'                  => __( 'Import', 'textdomain' ),
-			'pro_btn'                     => __( 'Get the PRO version!', 'textdomain' ),
-			'importing'                   => __( 'Importing', 'textdomain' ),
-			'cancel_btn'                  => __( 'Cancel', 'textdomain' ),
-			'loading'                     => __( 'Loading', 'textdomain' ),
-			'go_to_site'                  => __( 'View Website', 'textdomain' ),
-			'edit_template'               => __( 'Add your own content', 'textdomain' ),
-			'back'                        => __( 'Back to Sites Library', 'textdomain' ),
-			'note'                        => __( 'Note', 'textdomain' ),
-			'advanced_options'            => __( 'Advanced Options', 'textdomain' ),
-			'plugins'                     => __( 'Plugins', 'textdomain' ),
-			'general'                     => __( 'General', 'textdomain' ),
-			'later'                       => __( 'Keep current layout', 'textdomain' ),
-			'search'                      => __( 'Search', 'textdomain' ),
-			'content'                     => __( 'Content', 'textdomain' ),
-			'customizer'                  => __( 'Customizer', 'textdomain' ),
-			'widgets'                     => __( 'Widgets', 'textdomain' ),
-			'backup_disclaimer'           => __( 'We recommend you backup your website content before attempting a full site import.', 'textdomain' ),
-			'placeholders_disclaimer'     => __( 'Due to copyright issues, some of the demo images will not be imported and will be replaced by placeholder images.', 'textdomain' ),
-			'placeholders_disclaimer_new' => __( 'Some of the demo images will not be imported and will be replaced by placeholder images.', 'textdomain' ),
-			'unsplash_gallery_link'       => __( 'Here is our own collection of related images you can use for your site.', 'textdomain' ),
-			'import_done'                 => __( 'Content was successfully imported. Enjoy your new site!', 'textdomain' ),
-			'pro_demo'                    => __( 'Available in the PRO version', 'textdomain' ),
-			'copy_error_code'             => __( 'Copy error code', 'textdomain' ),
-			'download_error_log'          => __( 'Download error log', 'textdomain' ),
-			'external_plugins_notice'     => __( 'To import this demo you have to install the following plugins:', 'textdomain' ),
+			'preview_btn'                 => __( 'Preview', 'neve' ),
+			'import_btn'                  => __( 'Import', 'neve' ),
+			'pro_btn'                     => __( 'Get the PRO version!', 'neve' ),
+			'importing'                   => __( 'Importing', 'neve' ),
+			'cancel_btn'                  => __( 'Cancel', 'neve' ),
+			'loading'                     => __( 'Loading', 'neve' ),
+			'go_to_site'                  => __( 'View Website', 'neve' ),
+			'edit_template'               => __( 'Add your own content', 'neve' ),
+			'back'                        => __( 'Back to Sites Library', 'neve' ),
+			'note'                        => __( 'Note', 'neve' ),
+			'advanced_options'            => __( 'Advanced Options', 'neve' ),
+			'plugins'                     => __( 'Plugins', 'neve' ),
+			'general'                     => __( 'General', 'neve' ),
+			'later'                       => __( 'Keep current layout', 'neve' ),
+			'search'                      => __( 'Search', 'neve' ),
+			'content'                     => __( 'Content', 'neve' ),
+			'customizer'                  => __( 'Customizer', 'neve' ),
+			'widgets'                     => __( 'Widgets', 'neve' ),
+			'backup_disclaimer'           => __( 'We recommend you backup your website content before attempting a full site import.', 'neve' ),
+			'placeholders_disclaimer'     => __( 'Due to copyright issues, some of the demo images will not be imported and will be replaced by placeholder images.', 'neve' ),
+			'placeholders_disclaimer_new' => __( 'Some of the demo images will not be imported and will be replaced by placeholder images.', 'neve' ),
+			'unsplash_gallery_link'       => __( 'Here is our own collection of related images you can use for your site.', 'neve' ),
+			'import_done'                 => __( 'Content was successfully imported. Enjoy your new site!', 'neve' ),
+			'pro_demo'                    => __( 'Available in the PRO version', 'neve' ),
+			'copy_error_code'             => __( 'Copy error code', 'neve' ),
+			'download_error_log'          => __( 'Download error log', 'neve' ),
+			'external_plugins_notice'     => __( 'To import this demo you have to install the following plugins:', 'neve' ),
 			/* translators: 1 - 'here'. */
 			'rest_not_working'            => sprintf(
-				__( 'It seems that Rest API is not working properly on your website. Read about how you can fix it %1$s.', 'textdomain' ),
-				sprintf( '<a href="https://docs.themeisle.com/article/1157-starter-sites-library-import-is-not-working#rest-api">%1$s<i class="dashicons dashicons-external"></i></a>', __( 'here', 'textdomain' ) )
+				__( 'It seems that Rest API is not working properly on your website. Read about how you can fix it %1$s.', 'neve' ),
+				sprintf( '<a href="https://docs.themeisle.com/article/1157-starter-sites-library-import-is-not-working#rest-api">%1$s<i class="dashicons dashicons-external"></i></a>', __( 'here', 'neve' ) )
 			),
 			/* translators: 1 - 'get in touch'. */
 			'error_report'                => sprintf(
-				__( 'Hi! It seems there is a configuration issue with your server that\'s causing the import to fail. Please %1$s with us with the error code below, so we can help you fix this.', 'textdomain' ),
-				sprintf( '<a href="https://themeisle.com/contact">%1$s <i class="dashicons dashicons-external"></i></a>', __( 'get in touch', 'textdomain' ) )
+				__( 'Hi! It seems there is a configuration issue with your server that\'s causing the import to fail. Please %1$s with us with the error code below, so we can help you fix this.', 'neve' ),
+				sprintf( '<a href="https://themeisle.com/contact">%1$s <i class="dashicons dashicons-external"></i></a>', __( 'get in touch', 'neve' ) )
 			),
 			/* translators: 1 - 'troubleshooting guide'. */
 			'troubleshooting'             => sprintf(
-				__( 'Hi! It seems there is a configuration issue with your server that\'s causing the import to fail. Take a look at our %1$s to see if any of the proposed solutions work.', 'textdomain' ),
-				sprintf( '<a href="https://docs.themeisle.com/article/1157-starter-sites-library-import-is-not-working">%1$s <i class="dashicons dashicons-external"></i></a>', __( 'troubleshooting guide', 'textdomain' ) )
+				__( 'Hi! It seems there is a configuration issue with your server that\'s causing the import to fail. Take a look at our %1$s to see if any of the proposed solutions work.', 'neve' ),
+				sprintf( '<a href="https://docs.themeisle.com/article/1157-starter-sites-library-import-is-not-working">%1$s <i class="dashicons dashicons-external"></i></a>', __( 'troubleshooting guide', 'neve' ) )
 			),
 			/* translators: 1 - 'get in touch'. */
 			'support'                     => sprintf(
-				__( 'If none of the solutions in the guide work, please %1$s with us with the error code below, so we can help you fix this.', 'textdomain' ),
-				sprintf( '<a href="https://themeisle.com/contact">%1$s <i class="dashicons dashicons-external"></i></a>', __( 'get in touch', 'textdomain' ) )
+				__( 'If none of the solutions in the guide work, please %1$s with us with the error code below, so we can help you fix this.', 'neve' ),
+				sprintf( '<a href="https://themeisle.com/contact">%1$s <i class="dashicons dashicons-external"></i></a>', __( 'get in touch', 'neve' ) )
 			),
 			'fsDown'                      => sprintf(
-				__( 'It seems that %s is not available. You can contact your site administrator or hosting provider to help you enable it.', 'textdomain' ),
+				__( 'It seems that %s is not available. You can contact your site administrator or hosting provider to help you enable it.', 'neve' ),
 				sprintf( '<code>WP_Filesystem</code>' )
 			),
 		);
