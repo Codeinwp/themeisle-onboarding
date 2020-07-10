@@ -93,7 +93,7 @@ class Main {
 		if ( ! $this->should_load() ) {
 			return;
 		}
-        $this->setup_sites_listing();
+		$this->setup_sites_listing();
 		$this->setup_admin();
 		$this->setup_api();
 	}
